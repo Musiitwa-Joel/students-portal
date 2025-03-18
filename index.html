@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nkumba University Student Portal</title>
+    <style>
+      html {
+        overscroll-behavior: none;
+      }
+
+      body #splash-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #f0f0f0;
+        color: #f9fafb;
+        z-index: 999999;
+        pointer-events: none;
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      body #splash-screen #loader {
+        width: 350px; /* Adjust as needed */
+        height: 150px; /* Adjust as needed */
+        /* Add any additional styling for the image */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <div id="splash-screen">
+      <img src="/assets/splash/loader.png" alt="logo" id="loader" />
+    </div>
+
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

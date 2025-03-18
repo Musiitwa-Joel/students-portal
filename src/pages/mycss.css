@@ -1,0 +1,56 @@
+@media (max-width: 600px) {
+  .dashboard-title,
+  .balance-title {
+    display: none;
+  }
+}
+/* Footer.css */
+.footer {
+  text-align: center;
+  background-color: #001529;
+  color: #ffffff;
+  padding: 20px 50px;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 15px;
+}
+
+.footer-links li {
+  display: inline;
+}
+
+.footer-links a {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+/* ForgotPassword.css or your relevant CSS file */
+
+/* Hide the full footer on small screens */
+.mobile-footer {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .full-footer {
+    display: none;
+  }
+  .mobile-footer {
+    display: inline;
+  }
+}

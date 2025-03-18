@@ -1,0 +1,50 @@
+:where(.css-dev-only-do-not-override-1pvtnl0).ant-collapse {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    color: rgba(8, 50, 183, 0.88);
+    font-size: 12px;
+    line-height: 1.6666666666666667;
+    list-style: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    background-color: rgba(8, 50, 183, 0.02);
+    border: 1px solid #d9d9d9;
+    border-radius: 0px;
+}
+
+
+:where(.css-dev-only-do-not-override-1pvtnl0).ant-card-bordered {
+    border: 1px solid #ededed;
+}
+
+
+:where(.css-dev-only-do-not-override-1pvtnl0).ant-card-bordered {
+    border: 1px solid #ededed;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+:where(.css-dev-only-do-not-override-1a96ceg).ant-form-item {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    color: rgba(8, 50, 183, 0.88);
+    font-size: 12px;
+    line-height: 1.6666666666666667;
+    list-style: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    margin-bottom: 8px !important;
+    vertical-align: top;
+}

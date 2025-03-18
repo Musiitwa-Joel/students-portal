@@ -1,0 +1,21 @@
+/* Ensure the parent container takes full height */
+body,
+html {
+  height: 100%;
+  margin: 0;
+}
+
+/* Centering the loader */
+.loader-container {
+  display: flex; /* Use flexbox for centering */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  height: 100vh; /* Full viewport height */
+  background-color: #f0f0f0; /* Optional: background color */
+}
+
+.loader {
+  width: 350px; /* Adjust as needed */
+  height: 150px; /* Adjust as needed */
+  /* Add any additional styling for the image */
+}

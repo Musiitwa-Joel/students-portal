@@ -1,0 +1,13 @@
+.custom-tables .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #580505;
+  padding: 2px;
+  font-size: 12px;
+}
+
+.custom-tables .ant-table {
+  font-size: 6px;
+}
+
+.custom-tables .ant-table-thead > tr > th {
+  padding: 4px;
+}

@@ -1,0 +1,12 @@
+@media (max-width: 480px) {
+  .login-container {
+    padding: 0 !important;
+  }
+
+  .login-card {
+    width: 100% !important;
+    max-width: none !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+  }
+}

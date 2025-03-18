@@ -1,0 +1,46 @@
+.fees-table-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.table-wrapper {
+  padding: 0;
+  width: 100%;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.fees-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.fees-table th,
+.fees-table td {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 4px;
+  white-space: nowrap;
+}
+
+.fees-table th {
+  background-color: #f2f2f2;
+}
+
+.total-row {
+  background-color: #f2f2f2;
+}
+
+@media (max-width: 768px) {
+  .fees-table {
+    font-size: 8px;
+  }
+
+  .fees-table th,
+  .fees-table td {
+    padding: 2px;
+  }
+}

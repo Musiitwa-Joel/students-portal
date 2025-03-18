@@ -1,0 +1,128 @@
+.student-support-layout {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f2f5 0%, #e6e9f0 100%);
+  padding: 5px 0px;
+}
+
+.student-support-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.support-panel {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.info-section,
+.form-section {
+  height: 100%;
+  padding: 24px;
+}
+
+.info-section {
+  background-color: #f9fafc;
+  border-right: 1px solid #f0f0f0;
+}
+
+.form-section {
+  background-color: #ffffff;
+}
+
+.ant-tabs-nav {
+  margin-bottom: 24px;
+}
+
+.ant-tabs-tab {
+  padding: 12px 16px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.ant-tabs-tab-active {
+  background-color: #e6f7ff;
+  border-radius: 4px 4px 0 0;
+}
+
+.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #1890ff !important;
+  font-weight: 500;
+}
+
+.ant-tabs-ink-bar {
+  background-color: #1890ff;
+}
+
+.ant-form-item-label > label {
+  font-weight: 500;
+  color: #262626;
+}
+
+.ant-input,
+.ant-select-selector,
+.ant-btn {
+  border-radius: 4px;
+}
+
+.ant-input:hover,
+.ant-select-selector:hover,
+.ant-input:focus,
+.ant-select-selector:focus {
+  border-color: #40a9ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.ant-btn-primary {
+  height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s;
+}
+
+.ant-btn-primary:hover {
+  background-color: #096dd9;
+  border-color: #096dd9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(24, 144, 255, 0.35);
+}
+
+.mt-4 {
+  margin-top: 24px;
+}
+
+.ant-list-item {
+  padding: 8px 0;
+  border-bottom: none;
+}
+
+.ant-typography {
+  color: #262626;
+}
+
+h3.ant-typography {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+h4.ant-typography {
+  font-size: 18px;
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 992px) {
+  .info-section,
+  .form-section {
+    padding: 20px;
+  }
+
+  .info-section {
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+  }
+}
+/* Hide the support panel on small screens */

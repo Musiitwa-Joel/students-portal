@@ -1,0 +1,29 @@
+.custom-table .ant-table-tbody > tr:nth-child(odd) > td {
+  background-color: #fafafa;
+}
+
+.custom-table .ant-table-tbody > tr:nth-child(even) > td {
+  background-color: #ffffff;
+}
+
+.custom-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #dcdcdc;
+  padding: 6px; /* Reduced padding */
+  font-size: 12px; /* Smaller font size */
+}
+
+.custom-table .ant-table-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+
+.custom-table .ant-table-tbody > tr > td:first-child,
+.custom-table .ant-table-tbody > tr > td:nth-child(3) {
+  font-weight: bold;
+  color: #333;
+}
+
+.custom-table .ant-table-container {
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  overflow: hidden;
+}
