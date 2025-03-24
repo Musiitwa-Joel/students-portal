@@ -28,6 +28,8 @@ import formatDateToYYYYMMDD from "../../utils/formatDateToYYYYMMDDDD";
 import capitalizeFirstLetter from "../../utils/capitalizeFirstLetter";
 import formatDateString from "../../utils/formatDateToDateAndTime";
 import formatTimestampToDateTime from "../../utils/formatTimeStampToDateTime";
+import { RESEND_CLEARANCE_FORM } from "../../gql/mutation";
+import formatTimestampToDateWithDay from "../../utils/formatTimestampToDateWithDay";
 
 const text = `
   A dog is a type of domesticated animal.
@@ -47,98 +49,6 @@ const genExtra = () => (
   </>
 );
 
-const items = [
-  {
-    key: "1",
-    label: (
-      <>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <BsCheckCircleFill
-            color="color(display-p3 0.308 0.595 0.417)"
-            size={20}
-            style={{
-              marginRight: 10,
-            }}
-          />
-          School Admin Assistant
-        </div>
-      </>
-    ),
-    children: <p>{text}</p>,
-    extra: genExtra(),
-  },
-  {
-    key: "2",
-
-    label: (
-      <>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <Settings
-            className="spinning"
-            size={20}
-            style={{
-              marginRight: 10,
-              padding: 0,
-            }}
-          />
-          School of Post Graduate Studies Admin. Assistant
-        </div>
-      </>
-    ),
-    children: <p>{text}</p>,
-  },
-  {
-    key: "3",
-    label: "The Head of Department",
-    children: <p>{text}</p>,
-  },
-  {
-    key: "4",
-    label: "The Dean of School",
-    children: <p>{text}</p>,
-  },
-  {
-    key: "5",
-    label: "The Librarian",
-    children: <p>{text}</p>,
-  },
-  {
-    key: "6",
-    label: "Administrative Assistant- Admissions Office",
-    children: <p>{text}</p>,
-  },
-  {
-    key: "7",
-    label: "Alumni Admin Secretary",
-    children: <p>{text}</p>,
-  },
-  {
-    key: "8",
-    label: "The University Bursar",
-    children: <p>{text}</p>,
-  },
-  {
-    key: "9",
-    label: "Alumni Admin Secretary",
-    children: <p>{text}</p>,
-  },
-  {
-    key: "10",
-    label: "Academic Registrar",
-    children: <p>{text}</p>,
-  },
-];
-
 function GraduationClearance() {
   const appContext = useContext(AppContext);
   const { error, loading, data } = useQuery(CHECK_GRADUATION_ELLIGIBILITY, {
@@ -148,8 +58,15 @@ function GraduationClearance() {
     data: sectionsData,
     error: sectionsErr,
     loading: loadingSections,
-  } = useQuery(GET_GRADUATION_SECTIONS);
-  // console.log("sstudent file", appContext.studentFile);
+  } = useQuery(GET_GRADUATION_SECTIONS, {
+    fetchPolicy: "network-only",
+  });
+
+  const [resendClearanceForm, { error: resendErr, loading: resendingForm }] =
+    useMutation(RESEND_CLEARANCE_FORM, {
+      refetchQueries: ["My_details", "Graduation_sections"],
+    });
+  console.log("sectionsData", sectionsData);
 
   useEffect(() => {
     if (error) {
@@ -159,7 +76,11 @@ function GraduationClearance() {
     if (sectionsErr) {
       message.error(sectionsErr.message);
     }
-  }, [error, sectionsErr]);
+
+    if (resendErr) {
+      message.error(resendErr.message);
+    }
+  }, [error, sectionsErr, resendErr]);
 
   // console.log("sectionsData", sectionsData);
 
@@ -287,6 +208,14 @@ function GraduationClearance() {
 
   const onChange = (key) => {
     console.log(key);
+  };
+
+  const handleResendForm = async () => {
+    const res = await resendClearanceForm();
+
+    if (res?.data?.resendClearanceForm?.success) {
+      message.success(res?.data.resendClearanceForm.message);
+    }
   };
 
   return (
@@ -609,9 +538,11 @@ function GraduationClearance() {
                         <Button
                           disabled={
                             appContext?.studentFile?.graduation_status !==
-                            "rejected"
+                              "rejected" || resendingForm
                           }
                           type="primary"
+                          loading={resendingForm}
+                          onClick={handleResendForm}
                         >
                           Resend Form
                         </Button>
@@ -717,64 +648,10 @@ function GraduationClearance() {
                                           }}
                                         >
                                           <Timeline
-                                            // mode={"left"}
-                                            // items={
-                                            //   [
-                                            //   {
-                                            //     // label: "2015-09-01",
-                                            //     color: "green",
-                                            //     children: (
-                                            //       <div
-                                            //         style={{
-                                            //           padding: "0px 20px 0px 0px",
-                                            //         }}
-                                            //       >
-                                            //         <Typography.Text
-                                            //           style={{
-                                            //             fontStyle: "italic",
-                                            //           }}
-                                            //           type="secondary"
-                                            //         >
-                                            //           Posted by: SYSTEM at
-                                            //           2015-09-01 09:12:11
-                                            //         </Typography.Text>
-                                            //         <Alert
-                                            //           type="success"
-                                            //           message="Create a services mnsjhs sdjhjhdjhsd jhsdbhjdsjdhb jhhjsjhsdjg kjklsd udslugsdb uyuys"
-                                            //         />
-                                            //       </div>
-                                            //     ),
-                                            //   },
-                                            //   {
-                                            //     // label: "2015-09-01 09:12:11",
-                                            //     color: "red",
-                                            //     children: (
-                                            //       <div
-                                            //         style={{
-                                            //           margin: "0px 20px 0px 0px",
-                                            //         }}
-                                            //       >
-                                            //         <Typography.Text
-                                            //           style={{
-                                            //             fontStyle: "italic",
-                                            //           }}
-                                            //           type="secondary"
-                                            //         >
-                                            //           Posted by: MR. HAKIM MULINDE
-                                            //           at 2015-09-01 09:12:11
-                                            //         </Typography.Text>
-                                            //         <Alert
-                                            //           type="error"
-                                            //           message="Create a services"
-                                            //         />
-                                            //       </div>
-                                            //     ),
-                                            //   },
-                                            // ]}
-                                            items={section.logs[0]?.rejection_logs.map(
-                                              (rej_log) => ({
+                                            items={[
+                                              {
                                                 // label: "2015-09-01 09:12:11",
-                                                color: "red",
+                                                color: "green",
                                                 children: (
                                                   <div
                                                     style={{
@@ -790,33 +667,78 @@ function GraduationClearance() {
                                                     >
                                                       Posted by:{" "}
                                                       {
-                                                        rej_log?.rejected_by_user
+                                                        section.logs[0]
+                                                          ?.cleared_by_user
                                                       }{" "}
                                                       at{" "}
                                                       {formatTimestampToDateTime(
                                                         parseInt(
-                                                          rej_log?.rejected_at
+                                                          section.logs[0]?.date
                                                         )
                                                       )}
                                                     </Typography.Text>
                                                     <Alert
-                                                      type="error"
+                                                      type="success"
                                                       message={
                                                         <Typography.Text
                                                           style={{
-                                                            color: "red",
+                                                            color: "green",
                                                           }}
                                                         >
-                                                          {
-                                                            rej_log?.reject_reason
-                                                          }
+                                                          Successfully Cleared!
                                                         </Typography.Text>
                                                       }
                                                     />
                                                   </div>
                                                 ),
-                                              })
-                                            )}
+                                              },
+                                              ...section.logs[0]?.rejection_logs.map(
+                                                (rej_log) => ({
+                                                  // label: "2015-09-01 09:12:11",
+                                                  color: "red",
+                                                  children: (
+                                                    <div
+                                                      style={{
+                                                        margin:
+                                                          "0px 20px 0px 0px",
+                                                      }}
+                                                    >
+                                                      <Typography.Text
+                                                        style={{
+                                                          fontStyle: "italic",
+                                                        }}
+                                                        type="secondary"
+                                                      >
+                                                        Posted by:{" "}
+                                                        {
+                                                          rej_log?.rejected_by_user
+                                                        }{" "}
+                                                        at{" "}
+                                                        {formatTimestampToDateTime(
+                                                          parseInt(
+                                                            rej_log?.rejected_at
+                                                          )
+                                                        )}
+                                                      </Typography.Text>
+                                                      <Alert
+                                                        type="error"
+                                                        message={
+                                                          <Typography.Text
+                                                            style={{
+                                                              color: "red",
+                                                            }}
+                                                          >
+                                                            {
+                                                              rej_log?.reject_reason
+                                                            }
+                                                          </Typography.Text>
+                                                        }
+                                                      />
+                                                    </div>
+                                                  ),
+                                                })
+                                              ),
+                                            ]}
                                           />
                                         </div>
                                       ) : (
@@ -845,7 +767,18 @@ function GraduationClearance() {
                                   ),
                                   collapsible:
                                     section.logs.length == 0 && "disabled",
-                                  // extra: genExtra(),
+                                  extra: section.logs.length > 0 &&
+                                    section.logs[0]?.date && (
+                                      <Typography.Text
+                                        style={{
+                                          fontSize: 13,
+                                        }}
+                                      >
+                                        {formatTimestampToDateWithDay(
+                                          parseInt(section.logs[0]?.date)
+                                        )}
+                                      </Typography.Text>
+                                    ),
                                 })
                               )
                             : []
