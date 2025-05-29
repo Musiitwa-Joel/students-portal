@@ -37,6 +37,11 @@ import { MdOutlineAccountBalanceWallet } from "react-icons/md";
 import { MdSettingsSuggest } from "react-icons/md";
 import { Moon, RefreshCcw, Sun } from "lucide-react";
 import { RiPresentationLine } from "react-icons/ri";
+import { FaHandsHelping } from "react-icons/fa";
+import { GiNewspaper } from "react-icons/gi";
+import { IoLibrary } from "react-icons/io5";
+import { FaGraduationCap } from "react-icons/fa6";
+
 import {
   HomeOutlined,
   CheckCircleOutlined,
@@ -62,6 +67,12 @@ import Faq from "./Faq/faq";
 import Enrollment from "./enrollment/Enrollment";
 import styled from "styled-components";
 import GraduationClearance from "./graduation_clearance/GraduationClearance";
+import Counseling from "./counselling/Counseling";
+import News from "./news/News";
+import Library from "./library/Library";
+import Elearning from "./elearning/Elearning";
+import Evoting from "./evoting/Evoting";
+import SuggestionBox from "./suggestion_box/Suggest";
 
 const SpinningIcon = styled(RefreshCcw)`
   animation: spin 1s linear infinite;
@@ -203,38 +214,38 @@ const dashboardItems = [
     icon: <RiPresentationLine style={{}} />,
     title: "E-Learning",
     color: "#0d72a8",
-    key: "faq",
+    key: "elearning",
   },
   {
     icon: <MdSettingsSuggest style={{}} />,
     title: "Suggestion Box",
     color: "#661f19",
-    key: "faq",
+    key: "suggestion_box",
   },
 
   {
-    icon: <GiVote style={{}} />,
+    icon: <FaHandsHelping style={{}} />,
     title: "Counseling",
     key: "counseling",
-    color: "#04417a",
+    color: "#4CAF50",
   },
 
   {
-    icon: <RiPresentationLine style={{}} />,
+    icon: <GiNewspaper style={{}} />,
     title: "News",
     key: "news",
-    color: "#0d72a8",
+    color: "#1976D2",
   },
   {
-    icon: <MdSettingsSuggest style={{}} />,
+    icon: <IoLibrary style={{}} />,
     title: "Library",
     key: "library",
-    color: "#661f19",
+    color: "#FF9800",
   },
   {
-    icon: <FaQuestion style={{}} />,
+    icon: <FaGraduationCap style={{}} />,
     title: "Graduation Clearance",
-    color: "#2196F3",
+    color: "#673AB7",
     key: "graduation_clearance",
   },
   // { icon: <ToolOutlined style={{ color: "#a0d911" }} />, title: "My Services" },
@@ -715,8 +726,14 @@ export default function Dashboard() {
               {route.key == "calendar" && <AcademicCalendar />}
               {route.key == "my_finances" && <Finance />}
               {route.key == "services" && <Services />}
+              {route.key == "evoting" && <Evoting />}
               {route.key == "faq" && <Faq />}
+              {route.key == "elearning" && <Elearning />}
               {route.key == "graduation_clearance" && <GraduationClearance />}
+              {route.key == "counseling" && <Counseling />}
+              {route.key == "news" && <News />}
+              {route.key == "library" && <Library />}
+              {route.key == "suggestion_box" && <SuggestionBox />}
             </div>
           )}
         </div>

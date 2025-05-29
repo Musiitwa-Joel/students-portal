@@ -1,4 +1,4 @@
-import { StrictMode, lazy, Suspense } from "react";
+import { useState, useEffect, StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { ConfigProvider, theme } from "antd";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
@@ -7,10 +7,54 @@ import Loading from "./SplashScreen/Loading.jsx";
 import { AuthProvider } from "./auth/AuthContext.jsx";
 import ApolloSetup from "./ApolloSetup.jsx";
 import ForgotPasswordPage from "./auth/ForgotPassword.jsx";
+import Instructions from "./pages/evoting/Instructions.jsx";
 import App from "./App.jsx";
+import MobileLanding from "./mobile/mobile-landing.jsx";
 
 const Login = lazy(() => import("./auth/Login.jsx"));
 // const App = lazy(() => import("./App.jsx"));
+
+function useMobileDetect() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    function checkMobile() {
+      const userAgent = window.navigator.userAgent;
+      const iPad = userAgent.match(/iPad/i);
+      const iPadPro =
+        iPad &&
+        window.devicePixelRatio >= 2 &&
+        window.matchMedia("(min-width: 1024px)").matches;
+
+      const mobile = Boolean(
+        userAgent.match(
+          /Android|BlackBerry|iPhone|iPod|Opera Mini|IEMobile|WPDesktop/i
+        ) ||
+          (iPad && !iPadPro)
+      );
+
+      const isMobileView = window.innerWidth <= 1024; // Increased breakpoint to account for tablets
+      setIsMobile(mobile && isMobileView);
+    }
+
+    checkMobile(); // Check on initial load
+    window.addEventListener("resize", checkMobile); // Add resize listener
+
+    return () => window.removeEventListener("resize", checkMobile); // Cleanup
+  }, []);
+
+  return isMobile;
+}
+
+function MobileRedirect({ children }) {
+  const isMobile = useMobileDetect();
+
+  if (isMobile) {
+    return <MobileLanding />;
+  }
+
+  return children;
+}
 
 const router = createMemoryRouter([
   {
@@ -28,6 +72,10 @@ const router = createMemoryRouter([
   {
     path: "/home",
     element: <App />,
+  },
+  {
+    path: "/instructions",
+    element: <Instructions />,
   },
 ]);
 
@@ -47,11 +95,13 @@ createRoot(document.getElementById("root")).render(
                 colorPrime: "#91a4df",
                 colorBgBase: "",
               },
-              algorithm: [defaultAlgorithm, compactAlgorithm],
+              algorithm: [compactAlgorithm],
             }}
             direction="ltr"
           >
-            <RouterProvider router={router} />
+            <MobileRedirect>
+              <RouterProvider router={router} />
+            </MobileRedirect>{" "}
           </ConfigProvider>
         </ApolloSetup>
       </AuthProvider>

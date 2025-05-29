@@ -289,6 +289,7 @@ const GET_GRADUATION_SECTIONS = gql`
           section_id
           date
           cleared_by
+          cleared_by_user
           rejection_logs {
             clearance_id
             reject_reason

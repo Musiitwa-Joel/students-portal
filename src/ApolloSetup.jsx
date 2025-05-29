@@ -21,7 +21,7 @@ const ApolloSetup = ({ children }) => {
   }));
 
   const httpLink = new HttpLink({
-    uri: "http://localhost:2323/graphql",
+    uri: "https://tredumo.com/graphql",
   });
 
   const client = new ApolloClient({

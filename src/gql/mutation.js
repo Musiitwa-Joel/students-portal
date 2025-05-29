@@ -82,6 +82,15 @@ const VERIFY_STUDENT_CREDENTIALS = gql`
   }
 `;
 
+const RESEND_CLEARANCE_FORM = gql`
+  mutation resendClearanceForm {
+    resendClearanceForm {
+      message
+      success
+    }
+  }
+`;
+
 export {
   LOGIN,
   CHANGE_STD_PWD,
@@ -91,4 +100,5 @@ export {
   SELF_ENROLLMENT,
   SELF_REGISTER,
   VERIFY_STUDENT_CREDENTIALS,
+  RESEND_CLEARANCE_FORM,
 };

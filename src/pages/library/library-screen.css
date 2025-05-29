@@ -1,0 +1,450 @@
+/* Library Screen Styles */
+:root {
+  --primary-color: #1890ff;
+  --secondary-color: #52c41a;
+  --background-color: #f0f2f5;
+  --card-background: #ffffff;
+  --text-color: #333333;
+  --text-secondary: #8c8c8c;
+  --border-radius: 8px;
+  --transition-speed: 0.3s;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color var(--transition-speed) ease;
+}
+
+.library-container {
+  padding: 32px;
+  min-height: 100vh;
+}
+
+.library-header {
+  margin-bottom: 32px;
+  text-align: center;
+  animation: fadeInDown 0.5s ease-out;
+}
+
+.library-header h2 {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.library-header .ant-typography {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+.search-section {
+  background-color: var(--card-background);
+  padding: 24px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
+  transition: box-shadow var(--transition-speed) ease;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.search-section:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.ant-input-search {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow var(--transition-speed) ease;
+}
+
+.ant-input-search:hover,
+.ant-input-search:focus {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.filter-section {
+  margin-top: 24px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.resource-tabs {
+  margin-bottom: 24px;
+}
+
+.ant-tabs-tab {
+  transition: all var(--transition-speed) ease;
+}
+
+.ant-tabs-tab:hover {
+  color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.ant-tabs-tab-active {
+  font-weight: bold;
+}
+
+.resources-section {
+  background-color: var(--card-background);
+  padding: 24px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-height: 400px;
+  transition: box-shadow var(--transition-speed) ease;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.resources-section:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.resource-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-speed) ease;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.resource-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.resource-thumbnail {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-speed) ease;
+}
+
+.resource-thumbnail::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.1),
+    rgba(255, 255, 255, 0.1)
+  );
+  transition: opacity var(--transition-speed) ease;
+}
+
+.resource-card:hover .resource-thumbnail::before {
+  opacity: 0;
+}
+
+.resource-pages {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  transition: all var(--transition-speed) ease;
+}
+
+.resource-card:hover .resource-pages {
+  transform: translateY(-4px);
+  background-color: var(--primary-color);
+}
+
+.resource-meta {
+  margin-bottom: 12px;
+}
+
+.resource-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  gap: 24px;
+}
+
+.ant-spin-dot i {
+  background-color: var(--primary-color);
+}
+
+.pagination-container {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Preview Modal Styles */
+.preview-modal .ant-modal-content {
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.preview-title {
+  margin-left: 12px;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.preview-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  gap: 24px;
+}
+
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.preview-toolbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  background-color: #f0f2f5;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.preview-toolbar button {
+  margin: 0 5px;
+}
+
+.preview-content {
+  margin-top: 24px;
+  line-height: 1.8;
+  font-size: 1.1rem;
+}
+
+.preview-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 16px;
+  background-color: #f0f2f5;
+  position: sticky;
+  bottom: 0;
+}
+
+.preview-controls button {
+  min-width: 80px;
+}
+
+/* Ensure the PDF page fits within the modal */
+.react-pdf__Document {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.react-pdf__Page {
+  max-width: 100%;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  margin: 10px 0;
+}
+
+.react-pdf__Page canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .library-container {
+    padding: 16px;
+  }
+
+  .preview-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .preview-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .resource-card {
+    margin-bottom: 16px;
+  }
+}
+
+/* Dark mode overrides */
+.dark-mode {
+  --background-color: #1f1f1f;
+  --card-background: #2d2d2d;
+  --text-color: #ffffff;
+  --text-secondary: #a0a0a0;
+}
+
+.dark-mode .search-section,
+.dark-mode .resources-section {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .resource-thumbnail {
+  border: 1px solid #444;
+}
+
+.dark-mode .ant-card {
+  background-color: var(--card-background);
+  border-color: #444;
+}
+
+.dark-mode .ant-modal-content {
+  background-color: var(--card-background);
+}
+
+.dark-mode .ant-divider {
+  border-color: #444;
+}
+
+.dark-mode .ant-input,
+.dark-mode .ant-select-selector,
+.dark-mode .ant-btn {
+  background-color: #3a3a3a;
+  border-color: #555;
+  color: var(--text-color);
+}
+
+.dark-mode .ant-input::placeholder,
+.dark-mode .ant-select-selection-placeholder {
+  color: #888;
+}
+
+.dark-mode .ant-btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.dark-mode .ant-pagination-item {
+  background-color: #3a3a3a;
+  border-color: #555;
+}
+
+.dark-mode .ant-pagination-item-active {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Hover effects */
+.ant-btn:hover,
+.ant-select-selector:hover,
+.ant-pagination-item:hover {
+  transform: translateY(-2px);
+  transition: all var(--transition-speed) ease;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0056b3;
+}
+
+/* Full-screen modal styles */
+.preview-modal.fullscreen {
+  width: 100% !important;
+  height: 100vh !important;
+  top: 0 !important;
+  padding: 0;
+  margin: 0;
+}
+
+.preview-modal.fullscreen .ant-modal-content {
+  height: 100%;
+  border-radius: 0;
+}
+
+.preview-modal.fullscreen .ant-modal-body {
+  height: calc(100% - 55px); /* Adjust based on your modal header height */
+  padding: 0;
+}
