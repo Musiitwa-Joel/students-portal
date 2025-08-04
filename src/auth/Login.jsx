@@ -16,11 +16,14 @@ import "./Login.css";
 import { useMutation } from "@apollo/client";
 import { LOGIN } from "../gql/mutation";
 import { AuthContext } from "./AuthContext";
+import { ChevronRight } from "lucide-react";
+import { motion, useAnimation } from "framer-motion";
 
 const { useToken } = theme;
 const { Title, Text } = Typography;
 
 const LoginPage = () => {
+  const controls = useAnimation();
   const { token } = useToken();
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
@@ -36,6 +39,20 @@ const LoginPage = () => {
     cardBackground: "rgba(255, 255, 255, 0.9)",
     cardBorderColor: token.colorPrimary,
   });
+  useEffect(() => {
+    const interval = setInterval(() => {
+      controls.start({
+        y: [0, -2, 0], // subtle bounce
+        transition: { duration: 0.6, ease: "easeInOut" },
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [controls]);
+
+  const handleClick = () => {
+    window.open("https://tredumo.com/privacy", "_blank", "noopener,noreferrer");
+  };
 
   useEffect(() => {
     if (error) {
@@ -344,7 +361,6 @@ const LoginPage = () => {
             Welcome back! Please enter your details.
           </Text>
         </div>
-
         <Form
           name="login"
           initialValues={{ remember: true }}
@@ -439,7 +455,33 @@ const LoginPage = () => {
             </Button>
           </Form.Item>
         </Form>
+        <motion.div
+          animate={controls}
+          whileHover={{
+            scale: 1.03,
+            color: "#1a7de7",
+            transition: { duration: 0.3 },
+          }}
+          onClick={handleClick}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            fontWeight: 600,
+            fontSize: "13px",
+            color: "#0F1419",
+            cursor: "pointer",
+            borderBottom: "2px solid #1a7de7",
+            // paddingBottom: "2px",
+            width: "fit-content",
+          }}
+        >
+          <span style={{ marginRight: "6px" }}>
+            Is it okay if we explain how your data is used?
+          </span>
+          <ChevronRight size={16} />
+        </motion.div>
       </Card>
+      {/* <div>Is it okay if we explain how your data is used?</div>{" "} */}
     </div>
   );
 };
