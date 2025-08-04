@@ -6,6 +6,7 @@ import PartialPayment from "./PartialPayment";
 import Deposit from "./Deposit/Deposit";
 import AppContext from "../../context/appContext";
 import PaymentSlip from "./PaymentSlip";
+import { Helmet } from "react-helmet";
 
 const PRT = () => {
   //   const [open, setOpen] = useState(false);
@@ -90,6 +91,20 @@ const PRT = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Generate PRT for Payments - Nkumba University</title>
+        <meta
+          name="description"
+          content="Generate PRT for paying pending invoices, making partial payments, or depositing to your account at Your Institution Name."
+        />
+        <meta
+          name="keywords"
+          content="PRT, payment, invoices, partial payment, deposit, Your Institution Name"
+        />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Your Institution Name" />
+        <link rel="canonical" href="https://yourwebsite.com/prt" />
+      </Helmet>
       <Card>
         <Collapse
           bordered={false}

@@ -28,6 +28,7 @@ import AcademicDetails from "./AcademicDetails";
 import PersonalDetails from "./PersonalDetails";
 import Security from "./Security";
 import AppContext from "../../context/appContext";
+import { Helmet } from "react-helmet";
 
 const { TabPane } = Tabs;
 const { Title, Text } = Typography;
@@ -50,6 +51,19 @@ const Bio = () => {
   return (
     <Card style={{ margin: "0px" }}>
       <div style={{ maxHeight: "calc(100vh - 183px)", overflowY: "auto" }}>
+        <Helmet>
+          <title>{`${studentFile.biodata.surname} ${studentFile.biodata.other_names}'s Profile - Nkumba University`}</title>
+          <meta
+            name="description"
+            content={`View and manage the student profile for ${studentFile.biodata.surname} ${studentFile.biodata.other_names}, including academic details, personal information, and security settings at Nkumba University.`}
+          />
+          <meta
+            name="keywords"
+            content={`student profile, ${studentFile.biodata.surname} ${studentFile.biodata.other_names}, academic details, personal information, security settings, Nkumba University`}
+          />
+          <meta name="robots" content="index, follow" />
+          <meta name="author" content="Nkumba University" />
+        </Helmet>
         <Row gutter={16}>
           <Col xs={24} sm={24} md={24} lg={8}>
             <Card>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import {
   Card,
   Button,
@@ -19,6 +19,7 @@ import {
   Radio,
   Modal,
   Spin,
+  message,
 } from "antd";
 import {
   Calendar,
@@ -43,98 +44,9 @@ import {
   ArrowRight,
 } from "lucide-react";
 import dayjs from "dayjs";
-
-// Mock data for upcoming elections
-const upcomingElections = [
-  {
-    id: 201,
-    title: "Nkumba University Guild Presidential Election 2023/2024",
-    startDate: dayjs().add(2, "month"),
-    registrationDeadline: dayjs().add(1, "month"),
-    location: "Main Campus, Freedom Square",
-    description:
-      "Election for the Guild President who will represent student interests for the 2023/2024 academic year.",
-    eligibleVoters: "All registered students",
-    registrationOpen: true,
-    candidates: [
-      {
-        id: 1,
-        name: "Namugwanya Sarah",
-        party: "UYD",
-        manifesto: "Improve student welfare and accommodation",
-        image:
-          "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100121",
-        color: "#FFD700",
-        registered: true,
-      },
-      {
-        id: 2,
-        name: "Mukasa David",
-        party: "Independent",
-        manifesto: "Better internet and library facilities",
-        image:
-          "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100121",
-        color: "#000000",
-        registered: true,
-      },
-      {
-        id: 3,
-        name: "Okello James",
-        party: "NRM",
-        manifesto: "More student scholarships and internship opportunities",
-        image:
-          "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100121",
-        color: "#DC143C",
-        registered: false,
-      },
-    ],
-  },
-  {
-    id: 202,
-    title: "Nkumba University Student Council Representatives",
-    startDate: dayjs().add(3, "month").add(15, "day"),
-    registrationDeadline: dayjs().add(2, "month"),
-    location: "University Auditorium",
-    description:
-      "Election for faculty representatives to the Student Council for effective representation of academic concerns.",
-    eligibleVoters: "Students from respective faculties",
-    registrationOpen: true,
-    candidates: [
-      {
-        id: 1,
-        name: "Nantongo Mary",
-        party: "Independent",
-        manifesto: "Push for practical-oriented curriculum",
-        image:
-          "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100121",
-        color: "#000000",
-        registered: true,
-      },
-      {
-        id: 2,
-        name: "Wasswa Brian",
-        party: "UYD",
-        manifesto: "Advocate for more research opportunities",
-        image:
-          "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100121",
-        color: "#FFD700",
-        registered: true,
-      },
-    ],
-  },
-  {
-    id: 203,
-    title: "Nkumba University Student Guild Elections",
-    startDate: dayjs().add(4, "month"),
-    registrationDeadline: dayjs().add(2, "month").add(15, "day"),
-    location: "UCU Main Hall",
-    description:
-      "Election for the Student Guild leadership positions at Uganda Christian University.",
-    eligibleVoters: "All registered UCU students",
-    registrationOpen: false,
-    candidates: [],
-  },
-];
+import AppContext from "../../context/appContext";
+import { useQuery } from "@apollo/client";
+import { UPCOMING_ONGOING_PAST_ELECTIONS } from "../../gql/queries";
 
 // Mock data for potential seconders
 const potentialSeconders = [
@@ -146,53 +58,7 @@ const potentialSeconders = [
     image:
       "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100122",
   },
-  {
-    id: 2,
-    name: "Kato Benjamin",
-    studentId: "2000100123",
-    faculty: "Information Technology",
-    image:
-      "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100123",
-  },
-  {
-    id: 3,
-    name: "Nabukenya Joyce",
-    studentId: "2000100124",
-    faculty: "Law",
-    image:
-      "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100124",
-  },
-  {
-    id: 4,
-    name: "Ssekandi Peter",
-    studentId: "2000100125",
-    faculty: "Education",
-    image:
-      "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100125",
-  },
-  {
-    id: 5,
-    name: "Namukwaya Diana",
-    studentId: "2000100126",
-    faculty: "Social Sciences",
-    image:
-      "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100126",
-  },
 ];
-
-// Mock student data for the current user
-const currentStudent = {
-  id: "2000100121",
-  name: "John Doe",
-  faculty: "Information Technology",
-  cgpa: 3.8,
-  hasRetakes: false,
-  financialStatus: "Cleared",
-  feePaid: 80, // percentage of fees paid
-  image:
-    "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100121",
-  phoneNumber: "0777123456",
-};
 
 // Political colors options
 const colorOptions = [
@@ -225,6 +91,22 @@ const mobileMoneyProviders = [
 ];
 
 export default function UpcomingElections() {
+  const { studentFile } = useContext(AppContext);
+  const [messageApi, contextHolder] = message.useMessage();
+  const [processedElections, setProcessedElections] = useState([]);
+
+  const currentStudent = {
+    id: studentFile?.student_no || "",
+    name: studentFile?.biodata
+      ? `${studentFile.biodata.surname} ${studentFile.biodata.other_names}`
+      : "",
+    faculty: studentFile?.course_details?.course?.school?.school_title || "",
+    cgpa: 3.8,
+    hasRetakes: false,
+    financialStatus: "Cleared",
+    feePaid: 80,
+    phoneNumber: studentFile?.biodata?.phone_no || "NOT PROVIDED",
+  };
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [dateRange, setDateRange] = useState([null, null]);
@@ -238,6 +120,7 @@ export default function UpcomingElections() {
   const [selectedColor, setSelectedColor] = useState(null);
   const [manifesto, setManifesto] = useState("");
   const [position, setPosition] = useState("");
+  // console.log(studentFile);
 
   // Payment related states
   const [paymentMethod, setPaymentMethod] = useState("mtn");
@@ -249,9 +132,131 @@ export default function UpcomingElections() {
   const [paymentReference, setPaymentReference] = useState("");
   const [paymentAmount] = useState(1000000); // 1,000,000 UGX
   const [paymentCompleted, setPaymentCompleted] = useState(false);
+  const [currentTime, setCurrentTime] = useState(dayjs());
+  const [timers, setTimers] = useState({}); // Store timer intervals
 
-  // For demonstration purposes, we can toggle between having data and empty state
-  const [showEmpty, setShowEmpty] = useState(false);
+  const studentSchoolCode =
+    studentFile?.course_details?.course?.school?.school_code;
+  const studentSchoolId = studentFile?.course_details?.course?.school?.id;
+  const studentCampusId = studentFile?.campus_id;
+  console.log(studentFile);
+
+  const apiFilters = useMemo(() => {
+    const filters = {};
+
+    // Add school code filter if available
+    if (studentSchoolId) {
+      filters.school_id = studentSchoolId;
+      console.log("Adding school_id filter:", studentSchoolId);
+    } else {
+      console.log("No school_id found for student");
+    }
+
+    // Add campus filter if available
+    if (studentCampusId) {
+      filters.campus_id = studentCampusId;
+      console.log("Adding campus_id filter:", studentCampusId);
+    } else {
+      console.log("No campus_id found for student");
+    }
+    filters.is_active = true;
+
+    // You can add other filters based on student data
+    // filters.category_id = null; // or specific category
+    // filters.acc_yr_id = null; // or current academic year
+    // filters.is_active = true; // only active elections
+
+    return filters;
+  }, [studentCampusId, studentSchoolId]);
+  console.log("API Filters:", apiFilters);
+  console.log("Student Campus ID:", studentCampusId);
+  console.log("Student School ID:", studentSchoolId);
+
+  const { error, loading, data } = useQuery(UPCOMING_ONGOING_PAST_ELECTIONS, {
+    variables: {
+      filters: apiFilters,
+    },
+    // Optional: skip query if no student data available
+    // skip: !studentFile || !studentSchoolId,
+  });
+
+  // Add this useEffect to update time every minute when there are same-day elections
+  useEffect(() => {
+    const hasSameDayElections = processedElections.some((election) => {
+      const diffInDays = election.registrationDeadline.diff(currentTime, "day");
+      const diffInMinutes = election.registrationDeadline.diff(
+        currentTime,
+        "minute"
+      );
+      return diffInDays === 0 && diffInMinutes > 0;
+    });
+
+    if (hasSameDayElections) {
+      const interval = setInterval(() => {
+        setCurrentTime(dayjs());
+      }, 60000); // Update every minute
+
+      return () => clearInterval(interval);
+    }
+  }, [processedElections, currentTime]);
+
+  // Process GraphQL data
+  useEffect(() => {
+    if (data?.upcoming_elections) {
+      const elections = data.upcoming_elections.map((election) => ({
+        id: election.id,
+        title: `${election.election_name} - ${election.academic_year_name}`,
+        startDate: dayjs(election.election_date),
+        acc_yr: election.academic_year_name,
+        registrationDeadline: dayjs(election.registration_end_time),
+        location: "ONLINE",
+        description: `Election for ${election.election_name} - ${election.academic_year_name}`,
+        eligibleVoters:
+          election.schools && election.schools.length > 0
+            ? `${election.schools
+                .map((school) => school.school_title)
+                .join(", ")}`
+            : "All registered students",
+        registrationOpen: dayjs().isBefore(
+          dayjs(election.registration_end_time)
+        ),
+        candidates: [
+          {
+            id: 1,
+            name: "Namugwanya Sarah",
+            party: "UYD",
+            manifesto: "Improve student welfare and accommodation",
+            image:
+              "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100121",
+            color: "#FFD700",
+            registered: true,
+          },
+          {
+            id: 2,
+            name: "Mukasa David",
+            party: "Independent",
+            manifesto: "Better internet and library facilities",
+            image:
+              "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100121",
+            color: "#000000",
+            registered: true,
+          },
+        ],
+        // Additional fields from GraphQL
+        categoryId: election.category_id,
+        electionCode: election.election_code,
+        electionStartTime: election.election_start_time,
+        electionEndTime: election.election_end_time,
+        registrationStartTime: election.registration_start_time,
+        requiredTuitionPercentage: election.required_tuition_percentage,
+        nominationFee: election.nomination_fee,
+        campusId: election.campus_title,
+        schools: election.schools,
+      }));
+      setProcessedElections(elections);
+    }
+  }, [data]);
+  console.log(data, "Processed Elections:", processedElections);
 
   // Generate a random payment reference when the component mounts
   useEffect(() => {
@@ -262,16 +267,23 @@ export default function UpcomingElections() {
         .padStart(6, "0");
       return `${prefix}${randomNum}`;
     };
-
     setPaymentReference(generateReference());
   }, []);
 
-  // Filter elections based on search term, filter type, and date range
-  const filteredElections = upcomingElections.filter((election) => {
-    // Search term filter
+  useEffect(() => {
+    if (error) {
+      messageApi.open({
+        type: "error",
+        content: error.message,
+      });
+    }
+  }, [error, messageApi]);
+
+  const filteredElections = processedElections.filter((election) => {
     const matchesSearch =
       election.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       election.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      election.acc_yr.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (election.candidates &&
         election.candidates.some(
           (candidate) =>
@@ -279,7 +291,6 @@ export default function UpcomingElections() {
             candidate.party.toLowerCase().includes(searchTerm.toLowerCase())
         ));
 
-    // Filter type
     const matchesFilter =
       filterType === "all" ||
       (filterType === "registration-open" && election.registrationOpen) ||
@@ -287,7 +298,6 @@ export default function UpcomingElections() {
         election.candidates &&
         election.candidates.length > 0);
 
-    // Date range filter
     const matchesDateRange =
       !dateRange[0] ||
       !dateRange[1] ||
@@ -297,37 +307,334 @@ export default function UpcomingElections() {
     return matchesSearch && matchesFilter && matchesDateRange;
   });
 
-  // Function to calculate and format time remaining until election
-  const getTimeRemaining = (date) => {
-    const now = dayjs();
-    const diff = date.diff(now, "day");
+  const hasElectionsButNotEligible = false;
 
-    if (diff > 30) {
-      const months = Math.floor(diff / 30);
-      const days = diff % 30;
-      return `${months} month${months !== 1 ? "s" : ""} ${days} day${
-        days !== 1 ? "s" : ""
-      }`;
-    } else {
-      return `${diff} day${diff !== 1 ? "s" : ""}`;
+  // Function to calculate and format time remaining until election
+  // const getTimeRemaining = (date) => {
+  //   const now = currentTime;
+  //   const diffInSeconds = date.diff(now, "second");
+
+  //   if (diffInSeconds < 0) {
+  //     return "Election has started";
+  //   }
+
+  //   const days = Math.floor(diffInSeconds / (24 * 60 * 60));
+  //   const hours = Math.floor((diffInSeconds % (24 * 60 * 60)) / (60 * 60));
+  //   const minutes = Math.floor((diffInSeconds % (60 * 60)) / 60);
+  //   const seconds = diffInSeconds % 60;
+
+  //   // If more than 7 days, just show days
+  //   if (days > 7) {
+  //     return `${days} day${days !== 1 ? "s" : ""} until election`;
+  //   }
+
+  //   // If more than 1 day, show days and hours
+  //   if (days > 0) {
+  //     return `${days}d ${hours}h until election`;
+  //   }
+
+  //   // If same day, show hours, minutes, seconds
+  //   if (hours > 0) {
+  //     return `${hours}h ${minutes}m ${seconds}s until election`;
+  //   }
+
+  //   // If less than an hour
+  //   if (minutes > 0) {
+  //     return `${minutes}m ${seconds}s until election`;
+  //   }
+
+  //   // If less than a minute
+  //   return `${seconds}s until election`;
+  // };
+
+  // Custom hook for live countdown
+  const useLiveCountdown = (targetDate) => {
+    const [timeRemaining, setTimeRemaining] = useState("");
+    const [isActive, setIsActive] = useState(false);
+
+    useEffect(() => {
+      const calculateTimeRemaining = () => {
+        const now = dayjs();
+        const target = dayjs(targetDate);
+        const diffInSeconds = target.diff(now, "second");
+
+        if (diffInSeconds <= 0) {
+          setTimeRemaining("Election has started");
+          setIsActive(false);
+          return;
+        }
+
+        setIsActive(true);
+
+        const days = Math.floor(diffInSeconds / (24 * 60 * 60));
+        const hours = Math.floor((diffInSeconds % (24 * 60 * 60)) / (60 * 60));
+        const minutes = Math.floor((diffInSeconds % (60 * 60)) / 60);
+        const seconds = diffInSeconds % 60;
+
+        // Format based on time remaining
+        if (days > 7) {
+          setTimeRemaining(
+            `${days} day${days !== 1 ? "s" : ""} until election`
+          );
+        } else if (days > 0) {
+          setTimeRemaining(`${days}d ${hours}h ${minutes}m until election`);
+        } else if (hours > 0) {
+          setTimeRemaining(`${hours}h ${minutes}m ${seconds}s until election`);
+        } else if (minutes > 0) {
+          setTimeRemaining(`${minutes}m ${seconds}s until election`);
+        } else {
+          setTimeRemaining(`${seconds}s until election`);
+        }
+      };
+
+      // Calculate immediately
+      calculateTimeRemaining();
+
+      // Set up interval
+      const interval = setInterval(calculateTimeRemaining, 1000);
+
+      return () => clearInterval(interval);
+    }, [targetDate]);
+
+    return { timeRemaining, isActive };
+  };
+
+  // Live countdown display component
+  const LiveCountdownDisplay = ({ targetDate }) => {
+    const { timeRemaining, isActive } = useLiveCountdown(targetDate);
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          color: "#6B7280",
+          fontSize: "14px",
+        }}
+      >
+        <Clock style={{ width: "14px", height: "14px" }} />
+        <span
+          style={{
+            fontFamily: "monospace", // Makes numbers align better
+            fontWeight: isActive ? "600" : "normal",
+            color: isActive ? "#EF4444" : "#6B7280", // Red when active countdown
+          }}
+        >
+          {timeRemaining}
+        </span>
+        {isActive && (
+          <span
+            style={{
+              width: "6px",
+              height: "6px",
+              backgroundColor: "#EF4444",
+              borderRadius: "50%",
+              animation: "pulse 1s infinite",
+            }}
+          />
+        )}
+      </div>
+    );
+  };
+
+  // Add this to your component or CSS file
+  const pulseAnimation = `
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+`;
+
+  // Add the style tag to your component
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.textContent = pulseAnimation;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
+  const DigitalCountdown = ({ targetDate }) => {
+    const [timeData, setTimeData] = useState({
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      isActive: false,
+    });
+
+    useEffect(() => {
+      const updateCountdown = () => {
+        const now = dayjs();
+        const target = dayjs(targetDate);
+        const diffInSeconds = target.diff(now, "second");
+
+        if (diffInSeconds <= 0) {
+          setTimeData({
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+            isActive: false,
+          });
+          return;
+        }
+
+        const days = Math.floor(diffInSeconds / (24 * 60 * 60));
+        const hours = Math.floor((diffInSeconds % (24 * 60 * 60)) / (60 * 60));
+        const minutes = Math.floor((diffInSeconds % (60 * 60)) / 60);
+        const seconds = diffInSeconds % 60;
+
+        setTimeData({
+          days,
+          hours,
+          minutes,
+          seconds,
+          isActive: true,
+        });
+      };
+
+      updateCountdown();
+      const interval = setInterval(updateCountdown, 1000);
+
+      return () => clearInterval(interval);
+    }, [targetDate]);
+
+    const digitStyle = {
+      backgroundColor: "#1F2937",
+      color: "#FFD700",
+      padding: "4px 8px",
+      borderRadius: "4px",
+      fontFamily: "monospace",
+      fontSize: "16px",
+      fontWeight: "bold",
+      minWidth: "30px",
+      textAlign: "center",
+    };
+
+    const labelStyle = {
+      fontSize: "10px",
+      color: "#6B7280",
+      textAlign: "center",
+    };
+
+    if (!timeData.isActive) {
+      return <span style={{ color: "#10B981" }}>Election Started!</span>;
     }
+
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        {/* <Clock style={{ width: "16px", height: "16px", color: "#6B7280" }} /> */}
+
+        {timeData.days > 0 && (
+          <div style={{ textAlign: "center" }}>
+            <div style={digitStyle}>
+              {timeData.days.toString().padStart(2, "0")}
+            </div>
+            <div style={labelStyle}>days</div>
+          </div>
+        )}
+
+        <div style={{ textAlign: "center" }}>
+          <div style={digitStyle}>
+            {timeData.hours.toString().padStart(2, "0")}
+          </div>
+          <div style={labelStyle}>hrs</div>
+        </div>
+
+        <div style={{ textAlign: "center" }}>
+          <div style={digitStyle}>
+            {timeData.minutes.toString().padStart(2, "0")}
+          </div>
+          <div style={labelStyle}>min</div>
+        </div>
+
+        <div style={{ textAlign: "center" }}>
+          <div style={digitStyle}>
+            {timeData.seconds.toString().padStart(2, "0")}
+          </div>
+          <div style={labelStyle}>sec</div>
+        </div>
+      </div>
+    );
   };
 
   // Function to calculate and format time remaining until registration deadline
   const getRegistrationTimeRemaining = (date) => {
-    const now = dayjs();
-    const diff = date.diff(now, "day");
+    const now = currentTime; // Use state instead of dayjs()
+    const diffInMinutes = date.diff(now, "minute");
+    const diffInHours = date.diff(now, "hour");
+    const diffInDays = date.diff(now, "day");
 
-    if (diff < 0) {
+    if (diffInMinutes < 0) {
       return "Registration closed";
-    } else if (diff === 0) {
-      return "Last day to register!";
-    } else if (diff <= 7) {
-      return `${diff} day${diff !== 1 ? "s" : ""} left to register`;
+    } else if (diffInDays === 0) {
+      // Same day - show live countdown
+      if (diffInHours === 0) {
+        return diffInMinutes <= 1
+          ? "Last minute to register!"
+          : `${diffInMinutes} minute${
+              diffInMinutes !== 1 ? "s" : ""
+            } left to register`;
+      } else {
+        const remainingMinutes = diffInMinutes % 60;
+        if (remainingMinutes === 0) {
+          return `${diffInHours} hour${
+            diffInHours !== 1 ? "s" : ""
+          } left to register`;
+        } else {
+          return `${diffInHours}h ${remainingMinutes}m left to register`;
+        }
+      }
+    } else if (diffInDays <= 7) {
+      return `${diffInDays} day${diffInDays !== 1 ? "s" : ""} left to register`;
     } else {
       return `Registration closes on ${date.format("MMMM D, YYYY")}`;
     }
   };
+
+  useEffect(() => {
+    const hasSameDayElections = processedElections.some((election) => {
+      const diffInDays = election.registrationDeadline.diff(currentTime, "day");
+      const diffInMinutes = election.registrationDeadline.diff(
+        currentTime,
+        "minute"
+      );
+      return diffInDays === 0 && diffInMinutes > 0;
+    });
+
+    const hasFinalHourElections = processedElections.some((election) => {
+      const diffInMinutes = election.registrationDeadline.diff(
+        currentTime,
+        "minute"
+      );
+      return diffInMinutes > 0 && diffInMinutes <= 60;
+    });
+
+    if (hasSameDayElections) {
+      // Update every 30 seconds in final hour, every minute otherwise
+      const updateInterval = hasFinalHourElections ? 30000 : 60000;
+
+      const interval = setInterval(() => {
+        setCurrentTime(dayjs());
+      }, updateInterval);
+
+      return () => clearInterval(interval);
+    }
+  }, [processedElections, currentTime]);
 
   // Function to handle opening the registration drawer
   const handleOpenRegistration = (election) => {
@@ -385,18 +692,15 @@ export default function UpcomingElections() {
   const handleConfirmPayment = () => {
     setPaymentProcessing(true);
     setPaymentStatus("processing");
-
     // Simulate payment processing
     setTimeout(() => {
       setPaymentProcessing(false);
       setPaymentModalVisible(false);
-
       // Generate a random verification code
       const verificationCode = Math.floor(
         100000 + Math.random() * 900000
       ).toString();
       setPaymentVerificationCode(verificationCode);
-
       setPaymentStatus("completed");
       setPaymentCompleted(true);
     }, 3000);
@@ -740,8 +1044,25 @@ export default function UpcomingElections() {
     fontSize: "14px",
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 200,
+        }}
+      >
+        <Spin tip="Loading elections..." />
+      </div>
+    );
+  }
+
   return (
     <div style={containerStyle}>
+      {contextHolder}
       <div style={headerStyle}>
         <div>
           <h2 style={headerTextStyle}>Upcoming Elections</h2>
@@ -750,7 +1071,7 @@ export default function UpcomingElections() {
           </p>
         </div>
         <Badge
-          count={upcomingElections.length}
+          count={processedElections.length}
           overflowCount={10}
           style={{ backgroundColor: "#000", color: "#FFD700" }}
         >
@@ -775,7 +1096,6 @@ export default function UpcomingElections() {
             style={{ width: "100%" }}
           />
         </div>
-
         <Select
           placeholder="Filter by"
           style={filterSelectStyle}
@@ -788,7 +1108,6 @@ export default function UpcomingElections() {
           ]}
           suffixIcon={<Filter style={{ width: "14px", height: "14px" }} />}
         />
-
         <DatePicker.RangePicker
           style={datePickerStyle}
           value={dateRange}
@@ -798,16 +1117,8 @@ export default function UpcomingElections() {
         />
       </div>
 
-      {/* Toggle button for demo purposes */}
-      <button
-        style={toggleEmptyButtonStyle}
-        onClick={() => setShowEmpty(!showEmpty)}
-      >
-        {showEmpty ? "Show Elections" : "Show Empty State"}
-      </button>
-
       {/* Election Cards or Empty State */}
-      {!showEmpty && filteredElections.length > 0 ? (
+      {filteredElections.length > 0 ? (
         filteredElections.map((election) => {
           const isExpanded = expandedElection === election.id;
           const hasRegisteredCandidates =
@@ -822,12 +1133,8 @@ export default function UpcomingElections() {
             >
               <div style={cardHeaderStyle}>
                 <h3 style={cardTitleStyle}>{election.title}</h3>
-                <div style={cardMetaStyle}>
-                  <Clock style={{ width: "14px", height: "14px" }} />
-                  <span>
-                    {getTimeRemaining(election.startDate)} until election
-                  </span>
-                </div>
+                {/* <LiveCountdownDisplay targetDate={election.startDate} /> */}
+                <DigitalCountdown targetDate={election.startDate} />
               </div>
 
               <div style={cardContentStyle}>
@@ -928,6 +1235,9 @@ export default function UpcomingElections() {
                           color: election.registrationOpen
                             ? "#047857"
                             : "#B91C1C",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
                         }}
                       >
                         {election.registrationOpen
@@ -935,6 +1245,26 @@ export default function UpcomingElections() {
                               election.registrationDeadline
                             )
                           : "Registration Closed"}
+                        {/* Add live indicator for same-day countdowns */}
+                        {election.registrationOpen &&
+                          election.registrationDeadline.diff(
+                            currentTime,
+                            "day"
+                          ) === 0 &&
+                          election.registrationDeadline.diff(
+                            currentTime,
+                            "minute"
+                          ) > 0 && (
+                            <span
+                              style={{
+                                width: "8px",
+                                height: "8px",
+                                backgroundColor: "#10B981",
+                                borderRadius: "50%",
+                                animation: "pulse 2s infinite",
+                              }}
+                            />
+                          )}
                       </div>
                     </div>
                   </div>
@@ -971,6 +1301,16 @@ export default function UpcomingElections() {
                         alignItems: "center",
                         gap: "4px",
                       }}
+                      title={
+                        election.schools && election.schools.length > 0
+                          ? election.schools
+                              .map(
+                                (school) =>
+                                  `${school.school_title} (${school.school_code})`
+                              )
+                              .join("\n")
+                          : "All registered students from all schools"
+                      }
                     >
                       <Users style={{ width: "12px", height: "12px" }} />
                       {election.eligibleVoters}
@@ -1019,7 +1359,6 @@ export default function UpcomingElections() {
                           {election.location}
                         </div>
                       </div>
-
                       {/* Eligible Voters */}
                       <div style={infoBoxStyle}>
                         <div style={infoBoxTitleStyle}>
@@ -1084,9 +1423,9 @@ export default function UpcomingElections() {
                               {" "}
                               {election.registrationDeadline.format(
                                 "MMMM D, YYYY"
-                              )}
+                              )}{" "}
+                              {election.registrationDeadline.format("HH:mm")}
                             </strong>
-                            .
                           </p>
                           <Button
                             type="primary"
@@ -1263,34 +1602,15 @@ export default function UpcomingElections() {
         })
       ) : (
         <div style={emptyStateStyle}>
-          <Calendar
-            style={{
-              width: "48px",
-              height: "48px",
-              color: "#9CA3AF",
-              marginBottom: "16px",
-            }}
-          />
-          <h3
-            style={{ fontSize: "18px", fontWeight: "600", marginBottom: "8px" }}
-          >
-            No upcoming elections
-          </h3>
-          <p
-            style={{
-              color: "#6B7280",
-              textAlign: "center",
-              maxWidth: "400px",
-              margin: "0 auto",
-            }}
-          >
-            There are currently no upcoming elections scheduled. Check back
-            later for future university elections.
+          <AlertTriangle size={48} color="#9CA3AF" />
+          <h3>No upcoming elections</h3>
+          <p>
+            There are currently no upcoming elections for your school (
+            {studentSchoolCode}). Check back later for future elections.
           </p>
           <Button
             type="primary"
             style={{
-              marginTop: "16px",
               backgroundColor: "#FFD700",
               borderColor: "#FFD700",
               color: "#000",
@@ -1514,7 +1834,6 @@ export default function UpcomingElections() {
               {currentStep === 0 && (
                 <div>
                   <h3 style={drawerTitleStyle}>Candidate Details</h3>
-
                   <div style={requirementCardStyle}>
                     <Form layout="vertical">
                       <Form.Item label="Position Applying For">
@@ -1533,7 +1852,6 @@ export default function UpcomingElections() {
                           Position is determined by the election you selected
                         </div>
                       </Form.Item>
-
                       <Form.Item
                         label="Campaign Manifesto"
                         required
@@ -1555,7 +1873,6 @@ export default function UpcomingElections() {
                           {manifesto.length}/50 characters minimum
                         </div>
                       </Form.Item>
-
                       <Form.Item label="Choose Your Campaign Color" required>
                         <div style={{ marginBottom: "8px" }}>
                           Select one of the available colors to represent your
@@ -1626,7 +1943,6 @@ export default function UpcomingElections() {
               {currentStep === 1 && (
                 <div>
                   <h3 style={drawerTitleStyle}>Eligibility Verification</h3>
-
                   <div style={requirementCardStyle}>
                     <div style={requirementTitleStyle}>
                       <Check
@@ -1638,7 +1954,6 @@ export default function UpcomingElections() {
                       />
                       Academic Qualifications
                     </div>
-
                     <div style={{ marginBottom: "16px" }}>
                       <div
                         style={{
@@ -1677,7 +1992,6 @@ export default function UpcomingElections() {
                         Minimum required: 3.0
                       </div>
                     </div>
-
                     <div style={{ marginBottom: "16px" }}>
                       <div
                         style={{
@@ -1722,7 +2036,6 @@ export default function UpcomingElections() {
                       />
                       Financial Status
                     </div>
-
                     <div style={{ marginBottom: "16px" }}>
                       <div
                         style={{
@@ -1770,7 +2083,6 @@ export default function UpcomingElections() {
                         style={{ marginTop: "16px" }}
                       />
                     )}
-
                     {!financialRequirementsMet && (
                       <Alert
                         message="Financial Requirements Not Met"
@@ -1780,7 +2092,6 @@ export default function UpcomingElections() {
                         style={{ marginTop: "16px" }}
                       />
                     )}
-
                     {academicRequirementsMet && financialRequirementsMet && (
                       <Alert
                         message="Verification Successful"
@@ -1797,7 +2108,6 @@ export default function UpcomingElections() {
               {currentStep === 2 && (
                 <div>
                   <h3 style={drawerTitleStyle}>Nomination Fee Payment</h3>
-
                   <Alert
                     message="Nomination Fee Required"
                     description="A non-refundable nomination fee of 1,000,000 UGX is required to complete your candidacy registration."
@@ -1817,12 +2127,10 @@ export default function UpcomingElections() {
                       />
                       Payment Details
                     </div>
-
                     <div style={paymentInfoStyle}>
                       <span>Nomination Fee:</span>
                       <span style={{ fontWeight: "600" }}>UGX 1,000,000</span>
                     </div>
-
                     <div style={paymentInfoStyle}>
                       <span>Reference Number:</span>
                       <div
@@ -1844,7 +2152,6 @@ export default function UpcomingElections() {
                         </div>
                       </div>
                     </div>
-
                     <div style={{ ...paymentInfoStyle, borderBottom: "none" }}>
                       <span>Payment Status:</span>
                       <span
@@ -1959,7 +2266,6 @@ export default function UpcomingElections() {
                         />
                         Mobile Money Payment
                       </div>
-
                       <Form layout="vertical">
                         <Form.Item label="Select Payment Method" required>
                           <div
@@ -2109,7 +2415,6 @@ export default function UpcomingElections() {
               {currentStep === 3 && (
                 <div>
                   <h3 style={drawerTitleStyle}>Seconders</h3>
-
                   <Alert
                     message="Seconders Required"
                     description="You need at least 3 registered students to second your candidacy."
@@ -2173,7 +2478,6 @@ export default function UpcomingElections() {
                     >
                       Selected Seconders ({selectedSeconders.length})
                     </div>
-
                     {selectedSeconders.length > 0 ? (
                       <div
                         style={{
@@ -2228,7 +2532,6 @@ export default function UpcomingElections() {
                     >
                       Available Seconders
                     </div>
-
                     {filteredSeconders.map((seconder) => {
                       const isSelected = selectedSeconders.some(
                         (s) => s.id === seconder.id

@@ -31,6 +31,7 @@ import {
   BsCalendarPlus,
 } from "react-icons/bs";
 import toast, { Toaster } from "react-hot-toast";
+import { Helmet } from "react-helmet";
 
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -156,6 +157,19 @@ function App() {
       <Toaster position="top-right" />
 
       <div style={{ padding: "0 48px", maxWidth: "1400px", margin: "0 auto" }}>
+        <Helmet>
+          <title>Counseling Services - Nkumba University</title>
+          <meta
+            name="description"
+            content="Book and manage counseling sessions with expert counselors at Nkumba University. Schedule sessions, chat with therapists, and track your wellness journey."
+          />
+          <meta
+            name="keywords"
+            content="counseling services, book session, therapist chat, mental health, Nkumba University"
+          />
+          <meta name="robots" content="index, follow" />
+          <meta name="author" content="Nkumba University" />
+        </Helmet>
         <Row gutter={24} style={{ marginBottom: "48px" }}>
           <Col span={6}>
             <Card className="stats-card" style={{ borderColor: "#0EA5E9" }}>

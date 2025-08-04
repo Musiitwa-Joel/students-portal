@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Card, Row, Col, Statistic, Typography, Button } from "antd";
+import { motion, AnimatePresence } from "framer-motion";
 import MyInvoices from "./Invoices/Invoices";
 import MyLedger from "./Ledger/Ledger";
 import MyTransactions from "./Transactions/Transactions";
@@ -27,7 +28,7 @@ const tabList = [
 ];
 
 const Statistics = ({ invoices }) => {
-  // console.log("invoices", invoices);
+  console.log("invoices", invoices);
   const totalAmount = invoices.reduce(
     (total, item) => total + parseInt(item.total_amount),
     0
@@ -140,7 +141,7 @@ const Statistics = ({ invoices }) => {
               value={totalAmountDue}
               precision={0}
               valueStyle={{
-                color: "#3f8600",
+                color: "#cf1322",
               }}
               // prefix={<ArrowDownOutlined />}
               suffix="UGX"
@@ -183,6 +184,7 @@ const Statistics = ({ invoices }) => {
     </div>
   );
 };
+
 const contentList = {
   my_invoices: <MyInvoices />,
   my_ledger: <MyLedger />,
@@ -192,32 +194,34 @@ const contentList = {
 
 const Finance = () => {
   const { studentFile } = useContext(AppContext);
-  const [activeTabKey1, setActiveTabKey1] = useState("my_invoices");
-  const onTab1Change = (key) => {
-    setActiveTabKey1(key);
+  const [activeTabKey, setActiveTabKey] = useState("my_invoices");
+  const onTabChange = (key) => {
+    setActiveTabKey(key);
   };
 
   return (
     <>
       <Card
-        // style={{
-        //   width: "100%",
-        // }}
+        headStyle={{
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          background: "#fff",
+          borderBottom: "1px solid #f0f0f0",
+        }}
+        bodyStyle={{ padding: 0 }}
         tabList={tabList}
-        activeTabKey={activeTabKey1}
-        onTabChange={onTab1Change}
+        activeTabKey={activeTabKey}
+        onTabChange={onTabChange}
         // extra={<Button icon={<RefreshCcw size={15} />}>Refresh</Button>}
-        // extra={<a href="#">More</a>}
       >
         <Row
           gutter={8}
           style={{
             width: "100%",
-            height: "auto",
+            height: "calc(100vh - 200px)",
             margin: 0,
             padding: 0,
-            // boxShadow: "0 0 10px rgba(0, 0, 0, 0.15)",
-            // backgroundColor: "red",
           }}
         >
           <Col
@@ -225,10 +229,24 @@ const Finance = () => {
             span={19}
             style={{
               padding: 0,
-              // margin: 10,
             }}
           >
-            <div>{contentList[activeTabKey1]}</div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              key={activeTabKey}
+              style={{
+                height: "100%",
+                overflowY: "auto",
+                padding: "16px",
+              }}
+            >
+              <AnimatePresence mode="wait">
+                {contentList[activeTabKey]}
+              </AnimatePresence>
+            </motion.div>
           </Col>
           <Col className="gutter-row" span={5}>
             <Statistics invoices={studentFile?.invoices || []} />
@@ -238,4 +256,5 @@ const Finance = () => {
     </>
   );
 };
+
 export default Finance;

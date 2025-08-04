@@ -23,7 +23,7 @@
   inset: 0;
   background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTAwIDAgQzEwMCAxMDAgMCAxMDAgMCAxMDAiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBmaWxsPSJub25lIi8+PC9zdmc+");
   background-size: 400px;
-  opacity: 0.1;
+  opacity: 0.2;
   animation: leaves 20s linear infinite;
 }
 

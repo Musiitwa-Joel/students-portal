@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Card } from "antd";
 import SelfRegistration from "./SelfRegistration";
 import RegistrationTrack from "./RegistrationTrack";
+import { Helmet } from "react-helmet";
 
 const tabList = [
   {
@@ -26,6 +27,20 @@ const Registration = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Student Registration - Nkumba University</title>
+        <meta
+          name="description"
+          content="Manage your student registration and track your registration progress for the 2024/2025 academic year at Your Institution Name."
+        />
+        <meta
+          name="keywords"
+          content="student registration, registration track, academic year, Your Institution Name"
+        />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Nkumba University" />
+        <link rel="canonical" href="https://yourwebsite.com/registration" />
+      </Helmet>
       <Card
         style={{
           width: "100%",

@@ -1,10 +1,7 @@
 import React from "react";
-import { Table, Typography, Button, Tag } from "antd";
-import {
-  ReloadOutlined,
-  CloseCircleOutlined,
-  SyncOutlined,
-} from "@ant-design/icons";
+import { Table, Typography, Tag } from "antd";
+import { CloseCircleOutlined, SyncOutlined } from "@ant-design/icons";
+import { Helmet } from "react-helmet";
 import "./AcademicCalendar.css";
 const { Title } = Typography;
 
@@ -84,6 +81,24 @@ export default function AcademicCalendar() {
 
   return (
     <div style={{ padding: "24px" }}>
+      <Helmet>
+        <title>Academic Calendar - Your Institution Name</title>
+        <meta
+          name="description"
+          content="View the Academic Calendar, including key dates for enrollment, registration, program changes, and more at Your Institution Name."
+        />
+        <meta
+          name="keywords"
+          content="academic calendar, enrollment, registration, program change, Your Institution Name"
+        />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Nkumba University" />
+        <link
+          rel="canonical"
+          href="https://yourwebsite.com/academic-calendar"
+        />
+      </Helmet>
+
       <div
         style={{
           display: "flex",
@@ -107,7 +122,6 @@ export default function AcademicCalendar() {
       <div
         style={{
           backgroundColor: "darkblue",
-
           color: "white",
           padding: "8px 10px",
           display: "flex",
@@ -115,7 +129,7 @@ export default function AcademicCalendar() {
           alignItems: "center",
         }}
       >
-        <span>SEMESTER 1 &nbsp; Ends on 12 July 2025</span>
+        <span>SEMESTER 1 Ends on 12 July 2025</span>
         <Tag color="success">Current</Tag>
       </div>
     </div>

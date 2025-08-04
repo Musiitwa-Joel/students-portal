@@ -124,7 +124,7 @@ const ResultsTable = () => {
             bordered={false}
             color={token.colorPrimary}
             size={80}
-            value="https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100121"
+            value={`https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=${studentFile.student_no}`}
             iconBgStyle={{ fill: "white" }}
           />
         </HideOnMobile>

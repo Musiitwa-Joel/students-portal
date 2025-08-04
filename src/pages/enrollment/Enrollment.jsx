@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Card } from "antd";
 import ModulesEnrollment from "./modules_enrollment/ModulesEnrollment";
 import EnrollmentHistory from "./enrollment_history/EnrollmentHistory";
+import { Helmet } from "react-helmet";
+
 const tabList = [
   {
     key: "modules_enrollment",
@@ -25,6 +27,32 @@ const Enrollment = () => {
 
   return (
     <>
+      <Helmet>
+        <title>
+          {activeTabKey1 === "modules_enrollment"
+            ? "Modules Enrollment"
+            : "Enrollment History"}{" "}
+          - Nkumba University
+        </title>
+        <meta
+          name="description"
+          content={
+            activeTabKey1 === "modules_enrollment"
+              ? "Enroll in academic modules for the current semester at Nkumba University."
+              : "View your enrollment history and past academic records at Nkumba University."
+          }
+        />
+        <meta
+          name="keywords"
+          content={`${
+            activeTabKey1 === "modules_enrollment"
+              ? "modules enrollment, academic modules"
+              : "enrollment history, academic records"
+          }, Nkumba University`}
+        />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Nkumba University" />
+      </Helmet>
       <Card
         style={{
           width: "100%",

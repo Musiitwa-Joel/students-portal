@@ -37,33 +37,6 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    key: "1",
-    invoice_no: "T-INV1088619943",
-    desc: "Tuition Fees",
-    amount: "1,380,000 UGX",
-    paid: "45 UGX",
-    amount_due: "1,379,955 UGX",
-  },
-  {
-    key: "2",
-    invoice_no: "T-INV653527027",
-    desc: "Tuition Fees",
-    amount: "1,380,000 UGX",
-    paid: "0 UGX",
-    amount_due: "1,220,000 UGX",
-  },
-  {
-    key: "3",
-    invoice_no: "F-INV1628648347",
-    desc: "Functional Fees",
-    amount: "599,755 UGX",
-    paid: "0 UGX",
-    amount_due: "599,755 UGX",
-  },
-];
-
 const GenerateTable = () => {
   const { studentFile, setTokenRes, setPaymentSlipVisible } =
     useContext(AppContext);

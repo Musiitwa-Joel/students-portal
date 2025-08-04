@@ -7,6 +7,7 @@ const LOAD_STUDENT_FILE = gql`
       form_no
       student_no
       registration_no
+
       biodata {
         surname
         other_names
@@ -29,8 +30,10 @@ const LOAD_STUDENT_FILE = gql`
         credentials_verified_on
         credentials_verified_by
       }
+
       intake_id
       intake_title
+      campus_id
       campus_title
       study_time_title
       course_details {
@@ -312,6 +315,178 @@ const CHECK_GRADUATION_ELLIGIBILITY = gql`
   }
 `;
 
+const VERIFY_VOTING_OTP = gql`
+  query verify_voting_otp($otpCode: String!) {
+    verify_voting_otp(otp_code: $otpCode) {
+      success
+      message
+    }
+  }
+`;
+const UPCOMING_ONGOING_PAST_ELECTIONS = gql`
+  query elections($filters: ElectionFilter) {
+    upcoming_elections(filters: $filters) {
+      id
+      category_id
+      election_name
+      election_code
+      academic_year_name
+      election_date
+      election_start_time
+      election_end_time
+      registration_start_time
+      registration_end_time
+      required_tuition_percentage
+      nomination_fee
+      campus_id
+      campus_title
+      schools {
+        school_code
+        school_title
+      }
+    }
+
+    ongoing_elections(filters: $filters) {
+      id
+      category_id
+      election_name
+      election_code
+      academic_year_name
+      election_date
+      election_start_time
+      election_end_time
+      registration_start_time
+      registration_end_time
+      required_tuition_percentage
+      nomination_fee
+      campus_id
+      campus_title
+      schools {
+        school_code
+        school_title
+      }
+    }
+
+    past_elections(filters: $filters) {
+      id
+      category_id
+      election_name
+      election_code
+      academic_year_name
+      election_date
+      election_start_time
+      election_end_time
+      registration_start_time
+      registration_end_time
+      required_tuition_percentage
+      nomination_fee
+      campus_id
+      campus_title
+      schools {
+        school_code
+        school_title
+      }
+    }
+  }
+`;
+
+const LEDGER_QUERY = gql`
+  query My_ledger {
+    my_ledger {
+      id
+      date
+      type
+      reference
+      academic_year
+      study_year
+      semester
+      description
+      debit
+      credit
+      balance
+    }
+  }
+`;
+
+const TRANSACTIONS_QUERY = gql`
+  query my_transactions {
+    my_transactions {
+      id
+      student_no
+      prt
+      payment_date
+      bank_txn_id
+      tredumo_txn_id
+      bank_ref
+      bank_name
+      bank_branch
+      amount
+      acc_yr
+      unallocated
+      allocated
+      posted_by
+      is_dp
+      is_pp
+      allocations {
+        id
+        acc_yr
+        student_no
+        allocation_date
+        amount
+        invoice_details {
+          id
+          student_id
+          student_no
+          invoice_no
+          line_items {
+            line_item_id
+            student_no
+            item_name
+            item_code
+            invoice_no
+            date
+            item_comments
+            item_description
+            quantity
+            unit_amount
+          }
+          currency_code
+          amount_paid
+          amount_due
+          academic_year
+          due_date
+          study_year
+          total_amount
+          total_credit
+          semester
+          status
+          paid
+          reference
+          narration
+          invoice_type
+          invoice_date
+          invoice_category
+        }
+      }
+    }
+  }
+`;
+
+const GET_FEES_STRUCTURE = gql`
+  query my_fees_structure {
+    my_fees_structure {
+      item_code
+      item_name
+      item_description
+      mandatory
+      amount
+      frequency_code
+      study_yr
+      semester
+    }
+  }
+`;
+
 export {
   LOAD_STUDENT_FILE,
   GET_COURSE_UNITS,
@@ -320,4 +495,9 @@ export {
   GET_MY_RESULTS,
   GET_GRADUATION_SECTIONS,
   CHECK_GRADUATION_ELLIGIBILITY,
+  VERIFY_VOTING_OTP,
+  UPCOMING_ONGOING_PAST_ELECTIONS,
+  LEDGER_QUERY,
+  TRANSACTIONS_QUERY,
+  GET_FEES_STRUCTURE,
 };

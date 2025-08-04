@@ -71,7 +71,8 @@ import Counseling from "./counselling/Counseling";
 import News from "./news/News";
 import Library from "./library/Library";
 import Elearning from "./elearning/Elearning";
-import Evoting from "./evoting/Evoting";
+// import Evoting from "./evoting/Evoting";
+import VotingStarterCards from "./evoting/VotingStarterCards";
 import SuggestionBox from "./suggestion_box/Suggest";
 
 const SpinningIcon = styled(RefreshCcw)`
@@ -161,13 +162,6 @@ const dashboardItems = [
     key: "registration",
     color: "#faad14",
   },
-
-  // {
-  //   icon: <BookOutlined style={{}} />,
-  //   title: "Registration",
-  //   key: "enrollment",
-  //   color: "#faad14",
-  // },
   {
     icon: <GiPapers style={{}} />,
     title: "Results Hub",
@@ -273,11 +267,11 @@ export default function Dashboard() {
   const onClose = () => {
     setVisible(false);
   };
-  const price = 234000;
-  const formattedPrice = price.toLocaleString("en-UG", {
-    style: "currency",
-    currency: "UGX",
-  });
+  // const price = 234000;
+  // const formattedPrice = price.toLocaleString("en-UG", {
+  //   style: "currency",
+  //   currency: "UGX",
+  // });
 
   const contentStyle = {
     padding: 50,
@@ -588,7 +582,9 @@ export default function Dashboard() {
                 color="processing"
               >
                 {studentFile?.current_info &&
-                  `UGX ${studentFile?.current_info?.account_balance}`}
+                  `UGX ${Number(
+                    studentFile.current_info.account_balance
+                  ).toLocaleString()}`}
               </Tag>
 
               <Button
@@ -726,7 +722,7 @@ export default function Dashboard() {
               {route.key == "calendar" && <AcademicCalendar />}
               {route.key == "my_finances" && <Finance />}
               {route.key == "services" && <Services />}
-              {route.key == "evoting" && <Evoting />}
+              {route.key == "evoting" && <VotingStarterCards />}
               {route.key == "faq" && <Faq />}
               {route.key == "elearning" && <Elearning />}
               {route.key == "graduation_clearance" && <GraduationClearance />}

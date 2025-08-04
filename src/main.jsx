@@ -10,9 +10,10 @@ import ForgotPasswordPage from "./auth/ForgotPassword.jsx";
 import Instructions from "./pages/evoting/Instructions.jsx";
 import App from "./App.jsx";
 import MobileLanding from "./mobile/mobile-landing.jsx";
+import UpcomingElections from "./pages/evoting/UpcomingElections.jsx";
+import NetworkStatusIndicator from "./network/NetworkStatusIndicator.jsx"; // Import the new component
 
 const Login = lazy(() => import("./auth/Login.jsx"));
-// const App = lazy(() => import("./App.jsx"));
 
 function useMobileDetect() {
   const [isMobile, setIsMobile] = useState(false);
@@ -33,14 +34,13 @@ function useMobileDetect() {
           (iPad && !iPadPro)
       );
 
-      const isMobileView = window.innerWidth <= 1024; // Increased breakpoint to account for tablets
+      const isMobileView = window.innerWidth <= 1024;
       setIsMobile(mobile && isMobileView);
     }
 
-    checkMobile(); // Check on initial load
-    window.addEventListener("resize", checkMobile); // Add resize listener
-
-    return () => window.removeEventListener("resize", checkMobile); // Cleanup
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   return isMobile;
@@ -77,6 +77,10 @@ const router = createMemoryRouter([
     path: "/instructions",
     element: <Instructions />,
   },
+  {
+    path: "/upcoming-elections",
+    element: <UpcomingElections />,
+  },
 ]);
 
 const { defaultAlgorithm, compactAlgorithm } = theme;
@@ -100,8 +104,9 @@ createRoot(document.getElementById("root")).render(
             direction="ltr"
           >
             <MobileRedirect>
+              <NetworkStatusIndicator /> {/* Add component here */}
               <RouterProvider router={router} />
-            </MobileRedirect>{" "}
+            </MobileRedirect>
           </ConfigProvider>
         </ApolloSetup>
       </AuthProvider>
@@ -115,6 +120,6 @@ window.addEventListener("load", () => {
     splashScreen.style.opacity = "0";
     setTimeout(() => {
       splashScreen.style.display = "none";
-    }, 400); // Matches the CSS transition
+    }, 400);
   }
 });

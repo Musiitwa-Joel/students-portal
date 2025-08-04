@@ -282,7 +282,6 @@ const ResultsComponent = () => {
     if (data?.my_results?.student_marks) {
       const results = data.my_results.student_marks;
       const categorized = {};
-
       results.forEach((result) => {
         const key = `${result.study_yr}-${result.semester}-${result.acc_yr_title}`;
         if (!categorized[key]) {

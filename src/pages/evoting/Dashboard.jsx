@@ -28,7 +28,7 @@ export default function ElectionsPage() {
   const containerStyle = {
     maxWidth: "1200px",
     margin: "0 auto",
-    height: "100vh",
+    height: "auto",
     display: "flex",
     flexDirection: "column",
   };

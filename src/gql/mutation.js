@@ -91,6 +91,24 @@ const RESEND_CLEARANCE_FORM = gql`
   }
 `;
 
+const VOTER_AUTHENTICATION = gql`
+  mutation authenticate_voter {
+    authenticate_voter {
+      message
+      success
+    }
+  }
+`;
+
+const PASSWORD_CHANGE = gql`
+  mutation Change_my_password($oldPassword: String!, $newPassword: String!) {
+    change_my_password(old_password: $oldPassword, new_password: $newPassword) {
+      success
+      message
+    }
+  }
+`;
+
 export {
   LOGIN,
   CHANGE_STD_PWD,
@@ -101,4 +119,6 @@ export {
   SELF_REGISTER,
   VERIFY_STUDENT_CREDENTIALS,
   RESEND_CLEARANCE_FORM,
+  VOTER_AUTHENTICATION,
+  PASSWORD_CHANGE,
 };

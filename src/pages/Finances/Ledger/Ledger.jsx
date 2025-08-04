@@ -1,274 +1,448 @@
-import React from "react";
-// import { Box } from "@mui/material";
-import { ConfigProvider, Table, Row, Col, Button, Tooltip } from "antd";
+import React, { useRef, useContext } from "react";
+import { useQuery } from "@apollo/client";
+import {
+  ConfigProvider,
+  Table,
+  Button,
+  Tooltip,
+  Skeleton,
+  Alert,
+  QRCode,
+} from "antd";
 import { PrinterOutlined } from "@ant-design/icons";
-// import "./styles.css";
+import { useReactToPrint } from "react-to-print";
+import { Resizable } from "react-resizable";
+import formatDateToDateAndTime from "../../../utils/formatDateToDateAndTime";
+import { LEDGER_QUERY } from "../../../gql/queries";
+import AppContext from "../../../context/appContext";
 
-const columns = [
-  {
-    title: "Row Name",
-    dataIndex: "name",
-    key: "name",
-    render: (text) => (
-      <span style={{ color: "dodgerblue", fontWeight: "500" }}>{text}</span>
-    ),
-  },
-];
+// Table column configurations
+const COLUMN_CONFIG = {
+  index: { title: "#", width: 50, key: "index" },
+  date: { title: "Date", width: 150, key: "date" },
+  entry: { title: "Entry", width: 250, key: "entry" },
+  // description: { title: "Description", width: 200, key: "description" },
+  debit: { title: "Debit", width: 100, key: "debit" },
+  credit: { title: "Credit", width: 100, key: "credit" },
+  balance: { title: "Balance", width: 100, key: "balance" },
+};
 
-const data = [
-  {
-    key: "2",
-    name: "LEDGER FOR YEAR 1, SEMESTER 1 AND 2 ACADEMIC YEAR 2020/2021",
+// Table styles
+const TABLE_STYLES = {
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+    fontSize: "10px",
+    tableLayout: "fixed",
   },
-  {
-    key: "1",
-    name: (
-      <Row align="middle" justify="space-between">
-        <Col>
-          <span style={{ color: "dodgerblue", fontWeight: "500" }}>
-            LEDGER FOR YEAR 2, SEMESTER 1 AND 3, ACADEMIC YEAR 2021/2022
-          </span>
-        </Col>
-        <Col>
-          <Tooltip title="Print">
-            <Button
-              type="dashed"
-              style={{ padding: "3px 6px" }}
-              size="small"
-              icon={<PrinterOutlined />}
-              onClick={() => printStatement()}
-            />
-          </Tooltip>
-        </Col>
-      </Row>
-    ),
+  cell: {
+    border: "1px solid #999",
+    padding: "4px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    color: "#333",
   },
-];
+  header: {
+    backgroundColor: "#f5f5f5",
+  },
+};
 
-const tableData = [
-  {
-    invoice_no: "WED 10-MAR-2021 11:38 am",
-    currency: "Invoice #2000100121-T58335192",
-    amount: "1129400.00",
-    paid: "0",
-    due: "1129400.00",
-    narration: "Tuition",
-    percentage: "30",
-  },
-  {
-    invoice_no: "WED 10-MAR-2021 11:38 am",
-    currency: "Invoice #2000100121-F58574678",
-    amount: "457500.00",
-    paid: "0",
-    due: "1586900.00",
-    narration: "Functional",
-    percentage: "30",
-  },
-  {
-    invoice_no: "MON 15-MAR-2021 03:09 pm",
-    currency: "Payment #B4E23833FE6A4",
-    amount: "00",
-    paid: "950000.00",
-    due: "636900.00",
-    narration: "Tuition",
-    percentage: "30",
-  },
-  {
-    invoice_no: "MON 15-MAR-2021 03:09 pm",
-    currency: "Payment #B4E23833FE6A4",
-    amount: "00",
-    paid: "636900.00",
-    due: "00",
-    narration: "Tuition",
-    percentage: "30",
-  },
-  {
-    invoice_no: "MON 30-AUG-2021 10:18 am",
-    currency: "Invoice #2000100121-T12111749",
-    amount: "1129400.00",
-    paid: "0",
-    due: "1129400.00",
-    narration: "Tuition",
-    percentage: "30",
-  },
-  {
-    invoice_no: "MON 30-AUG-2021 10:18 am",
-    currency: "Invoice #2000100121-F24143476",
-    amount: "320500.00",
-    paid: "0",
-    due: "1449900.00",
-    narration: "Functional",
-    percentage: "30",
-  },
-  {
-    invoice_no: "SAT 04-SEP-2021 03:21 pm",
-    currency: "Payment #F59B22A6A4A4A",
-    amount: "0",
-    paid: "500000.00",
-    due: "949900.00",
-    narration: "Functional",
-    percentage: "30",
-  },
-  {
-    invoice_no: "SUN 05-SEP-2021 11:18 am",
-    currency: "Payment #A49827873D943",
-    amount: "0",
-    paid: "95000.00",
-    due: "854900.00",
-    narration: "Functional",
-    percentage: "30",
-  },
-  {
-    invoice_no: "TUE 26-OCT-2021 07:05 pm",
-    currency: "Payment #C9FDEDE7F8D4D",
-    amount: "0",
-    paid: "300000.00",
-    due: "554900.00",
-    narration: "Functional",
-    percentage: "30",
-  },
-  {
-    invoice_no: "TUE 30-NOV-2021 03:07 pm",
-    currency: "Payment #3B9538F22C4A7",
-    amount: "0",
-    paid: "554900.00",
-    due: "0.00",
-    narration: "Functional",
-    percentage: "30",
-  },
-];
+// Resizable column header component
+const ResizableTitle = ({ onResize, width, ...restProps }) => {
+  if (!width) return <th {...restProps} />;
+  return (
+    <Resizable
+      width={width}
+      height={0}
+      handle={
+        <span
+          className="react-resizable-handle"
+          style={{
+            position: "absolute",
+            right: "-5px",
+            top: 0,
+            bottom: 0,
+            width: "10px",
+            cursor: "col-resize",
+            zIndex: 1,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        />
+      }
+      onResize={onResize}
+      draggableOpts={{ enableUserSelectHack: false }}
+    >
+      <th {...restProps} />
+    </Resizable>
+  );
+};
 
-function printStatement() {
-  const printWindow = window.open("", "_blank", "height=100,width=400");
-  if (printWindow) {
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Student Statement</title>
-          <style>
-            body { font-family: Arial, sans-serif; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid black; padding: 5px; text-align: left; }
-            th { background-color: #f2f2f2; }
-          </style>
-        </head>
-        <body>
-          <h2>TO: MWESIGWA Isaac (2100708077) - 21/U/08077/PS</h2>
-          <h3>AS OF: ${new Date().toLocaleString()}</h3>
-          <h3>COLLEGE OF HUMANITIES AND SOCIAL SCIENCES</h3>
-          <h3>SCHOOL OF LANGUAGES, LITERATURE AND COMMUNICATION</h3>
-          <h3>BACHELOR OF CHINESE AND ASIAN STUDIES</h3>
-          <h2>Statement</h2>
-          <table>
+// Print layout component
+const PrintLedger = React.forwardRef(({ tableData, studentFile }, ref) => {
+  const qrData =
+    tableData.length > 0
+      ? JSON.stringify({
+          totalCredits: tableData.reduce(
+            (sum, item) => sum + Number.parseFloat(item.credit || 0),
+            0
+          ),
+          totalDebits: tableData.reduce(
+            (sum, item) => sum + Number.parseFloat(item.debit || 0),
+            0
+          ),
+          netBalance: Number.parseFloat(
+            tableData[tableData.length - 1].balance || 0
+          ).toLocaleString(),
+        })
+      : JSON.stringify({ totalCredits: 0, totalDebits: 0, netBalance: "N/A" });
+  return (
+    <div ref={ref} style={{ padding: "20mm", fontFamily: "Arial, sans-serif" }}>
+      {/* Header */}
+      <header style={{ marginBottom: "20px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "20px",
+          }}
+        >
+          {/* Reverted image sources to original */}
+          <img
+            src="https://cdn.worldvectorlogo.com/logos/nkumba-uninersity.svg"
+            alt="Nkumba University Logo"
+            style={{ width: "150px", height: "150px" }}
+          />
+          <img
+            src={`https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=${
+              studentFile?.student_no || ""
+            }`}
+            alt="Student Photo"
+            style={{ width: "150px", height: "150px", borderRadius: "50%" }}
+          />
+          <QRCode
+            value={qrData}
+            bordered={false}
+            size={80}
+            bgColor="#fff"
+            fgColor="#000"
+            errorLevel="H"
+            style={{
+              border: "2px solid #5858efff",
+              padding: "5px",
+              backgroundColor: "#fff",
+            }}
+          />
+        </div>
+        <div style={{ textAlign: "center", marginTop: "15px" }}>
+          <div
+            style={{
+              fontSize: "16px",
+              fontWeight: "bold",
+              textTransform: "uppercase",
+              color: "#333",
+            }}
+          >
+            Nkumba University
+          </div>
+          <div
+            style={{
+              fontSize: "14px",
+              fontWeight: "bold",
+              marginTop: "5px",
+              color: "#333",
+            }}
+          >
+            Office of the University Bursar
+          </div>
+          <div style={{ fontSize: "11px", marginTop: "5px", color: "#555" }}>
+            P.O. Box 237, Entebbe, Uganda
+          </div>
+          <div style={{ fontSize: "11px", color: "#555" }}>
+            Phone: +256775037833 | Email: bursar@nkumbauniversity.ac.ug
+          </div>
+        </div>
+        <hr style={{ border: "0.3px solid #ccc", margin: "10px 0" }} />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            fontSize: "11px",
+            color: "#333",
+            marginTop: "10px",
+          }}
+        >
+          <div>
+            <div>
+              <strong>Student Info:</strong>{" "}
+              {`${studentFile?.biodata?.surname} ${studentFile?.biodata?.other_names}`}{" "}
+              ({studentFile?.student_no}) - {studentFile?.registration_no}
+            </div>
+            <div>
+              <strong>Program:</strong>{" "}
+              {studentFile?.course_details?.course?.course_title}
+            </div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div>
+              <strong>RE:</strong> Academic Ledger Statement
+            </div>
+            <div>
+              <strong>As of:</strong>{" "}
+              {new Date().toLocaleString("en-US", {
+                timeZone: "Africa/Nairobi",
+              })}
+            </div>
+          </div>
+        </div>
+      </header>
+      {/* Ledger Table */}
+      <section style={{ marginTop: "20px" }}>
+        <h2 style={{ fontSize: "13px", fontWeight: "bold", color: "#333" }}>
+          Financial Statement
+        </h2>
+        <table style={TABLE_STYLES.table}>
+          <colgroup>
+            <col style={{ width: "30px" }} />
+            <col style={{ width: "80px" }} />
+            <col style={{ width: "260px" }} />
+            <col style={{ width: "90px" }} />
+            <col style={{ width: "80px" }} />
+            <col style={{ width: "70px" }} />
+            <col style={{ width: "70px" }} />
+          </colgroup>
+          <thead>
             <tr>
-              <th>#</th>
-              <th>Time stamp</th>
-              <th>Entry</th>
-    
-              <th>Debit</th>
-              <th>Credit</th>
-              <th>Balance</th>
+              {Object.values(COLUMN_CONFIG).map((col) => (
+                <th
+                  key={col.key}
+                  style={{ ...TABLE_STYLES.cell, ...TABLE_STYLES.header }}
+                >
+                  {col.title}
+                </th>
+              ))}
             </tr>
-            ${tableData
-              .map(
-                (item, index) => `
-              <tr>
-                <td>${index + 1}</td>
-                <td>${item.invoice_no}</td>
-                <td>${item.currency}</td>
-               
-                <td>${parseInt(item.amount).toLocaleString()}</td>
-                <td>${parseInt(item.paid).toLocaleString()}</td>
-                <td>${parseInt(item.due).toLocaleString()}</td>
+          </thead>
+          <tbody>
+            {tableData.map((item, index) => (
+              <tr key={item.id}>
+                <td style={{ ...TABLE_STYLES.cell, maxWidth: "30px" }}>
+                  {index + 1}
+                </td>
+                <td style={{ ...TABLE_STYLES.cell, maxWidth: "80px" }}>
+                  {formatDateToDateAndTime(item.date)}
+                </td>
+                <td style={{ ...TABLE_STYLES.cell, maxWidth: "220px" }}>
+                  {`${item.reference} (${item.academic_year.replace(
+                    /(\d{4})\/(\d{4})/,
+                    "$1/$2"
+                  )}, Year${item.study_year}, Sem${item.semester})`}
+                </td>
+                {/* <td style={{ ...TABLE_STYLES.cell, maxWidth: "90px" }}>
+                  {item.description}
+                </td> */}
+                <td style={{ ...TABLE_STYLES.cell, maxWidth: "80px" }}>
+                  {Number.parseFloat(item.debit || 0).toLocaleString()}
+                </td>
+                <td style={{ ...TABLE_STYLES.cell, maxWidth: "80px" }}>
+                  {Number.parseFloat(item.credit || 0).toLocaleString()}
+                </td>
+                <td style={{ ...TABLE_STYLES.cell, maxWidth: "70px" }}>
+                  {Number.parseFloat(item.balance || 0).toLocaleString()}
+                </td>
               </tr>
-            `
-              )
-              .join("")}
-          </table>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
-    printWindow.focus();
-  }
-}
+            ))}
+          </tbody>
+        </table>
+        <div
+          style={{
+            textAlign: "right",
+            fontWeight: "bold",
+            marginTop: "10px",
+            fontSize: "15px",
+            color: "#333",
+          }}
+        >
+          NET STATEMENT BALANCE:{" "}
+          {tableData.length > 0
+            ? Number.parseFloat(
+                tableData[tableData.length - 1].balance || 0
+              ).toLocaleString()
+            : "N/A"}
+          &nbsp;UGX
+        </div>
+      </section>
+      {/* Print Styles */}
+      <style type="text/css" media="print">{`
+        @page { size: A4; margin: 20mm; }
+        html, body { height: 100%; margin: 0 !important; padding: 0 !important; overflow: visible; }
+        table { page-break-inside: auto; table-layout: fixed; }
+        tr { page-break-inside: avoid; page-break-after: auto; }
+        td, th { whiteSpace: nowrap !important; overflow: hidden; text-overflow: ellipsis; color: #333; }
+      `}</style>
+    </div>
+  );
+});
 
+// Main Ledger Component
 export default function Ledger() {
-  const expandedRowRender = () => {
-    const columns2 = [
-      {
-        title: "#",
-        dataIndex: "index",
-        key: "date",
-        render: (_, __, index) => index + 1,
-        width: "5%",
-      },
-      {
-        title: "TIME LOG",
-        dataIndex: "invoice_no",
-        width: "25%",
-        key: "invoice_no",
-        ellipsis: true,
-      },
-      {
-        title: "POSTING",
-        dataIndex: "currency",
-        key: "item_name",
-        width: "30%",
-        ellipsis: true,
-      },
-      {
-        title: "DEBIT",
-        dataIndex: "amount",
-        key: "amount",
-        ellipsis: true,
-        render: (text) => parseInt(text).toLocaleString(),
-        width: "15%",
-      },
-      {
-        title: "CREDIT",
-        key: "paid",
-        dataIndex: "paid",
-        width: "15%",
-        render: (text) => parseInt(text).toLocaleString(),
-      },
-      {
-        title: "BALANCE",
-        dataIndex: "due",
-        key: "due",
-        width: "15%",
-        render: (text) => parseInt(text).toLocaleString(),
-      },
-    ];
+  const printRef = useRef(null);
+  const { loading, error, data: queryData } = useQuery(LEDGER_QUERY);
+  console.log(queryData);
+  const { studentFile } = useContext(AppContext);
+  const [columnWidths, setColumnWidths] = React.useState(
+    Object.fromEntries(
+      Object.entries(COLUMN_CONFIG).map(([key, { width }]) => [key, width])
+    )
+  );
+  const tableData = queryData?.my_ledger || [];
+  const isEmpty = tableData.length === 0;
 
+  const handlePrint = useReactToPrint({
+    // Reverting to contentRef as per user's report
+    contentRef: printRef,
+    documentTitle: "Nkumba University - Student Statement",
+    onPrintError: (errorLocation, error) => {
+      console.error(`Print error at ${errorLocation}:`, error);
+      alert(
+        "Failed to print. Please try again or check the console for details."
+      );
+    },
+  });
+
+  const handleResize =
+    (key) =>
+    (e, { size }) => {
+      setColumnWidths((prev) => ({
+        ...prev,
+        [key]: Math.max(50, Math.min(300, size.width)),
+      }));
+    };
+
+  const mainColumns = [
+    {
+      title: "Row Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text, _, __) => (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <span style={{ color: "dodgerblue", fontWeight: "500" }}>{text}</span>
+          <Tooltip title={isEmpty ? "No data to print" : "Print Statement"}>
+            <Button
+              type="primary"
+              icon={<PrinterOutlined />}
+              onClick={handlePrint}
+              size="small"
+              disabled={isEmpty}
+              style={isEmpty ? { filter: "blur(2px)", opacity: 0.5 } : {}}
+            >
+              Print
+            </Button>
+          </Tooltip>
+        </div>
+      ),
+    },
+  ];
+
+  const expandedColumns = Object.entries(COLUMN_CONFIG).map(
+    ([key, { title, width }]) => ({
+      title,
+      dataIndex: key,
+      key,
+      width: columnWidths[key],
+      ellipsis: key !== "index",
+      onHeaderCell: () => ({
+        width: columnWidths[key],
+        onResize: handleResize(key),
+      }),
+      render: (text, record) => {
+        if (key === "index") return tableData.indexOf(record) + 1;
+        if (key === "date") return formatDateToDateAndTime(record.date);
+        if (key === "entry")
+          return `${record.type} #${
+            record.reference
+          } (${record.academic_year.replace(
+            /(\d{4})\/(\d{4})/,
+            "$1/$2"
+          )}, Year${record.study_year}, Sem${record.semester})`;
+        if (["debit", "credit", "balance"].includes(key))
+          return Number.parseFloat(text || 0).toLocaleString();
+        return text;
+      },
+    })
+  );
+
+  const dataSource = studentFile?.biodata
+    ? [
+        {
+          key: "1",
+          name: `${studentFile.biodata.surname} ${studentFile.biodata.other_names}'S COMPREHENSIVE ACADEMIC LEDGER`,
+        },
+      ]
+    : [{ key: "1", name: "COMPREHENSIVE ACADEMIC LEDGER" }];
+
+  if (loading) {
     return (
-      <Table
-        style={{ marginBottom: 5, marginTop: 5 }}
-        size="small"
-        columns={columns2}
-        dataSource={tableData}
-        pagination={false}
-        rowHoverable
+      <div style={{ margin: "20px" }}>
+        <Skeleton active paragraph={false} title={false} />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "10px",
+          }}
+        >
+          {Object.values(COLUMN_CONFIG).map((col) => (
+            <Skeleton.Input
+              key={col.key}
+              style={{ width: col.width, height: 30, marginRight: 8 }}
+              active
+            />
+          ))}
+        </div>
+        {Array.from({ length: 5 }).map((_, rowIndex) => (
+          <div
+            key={rowIndex}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "8px",
+            }}
+          >
+            {Object.values(COLUMN_CONFIG).map((col) => (
+              <Skeleton.Input
+                key={`${col.key}-${rowIndex}`}
+                style={{ width: col.width, height: 20, marginRight: 8 }}
+                active
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert
+        message="Error"
+        description="Failed to load ledger data. Please try again."
+        type="error"
+        showIcon
+        style={{ marginTop: "20px" }}
       />
     );
-  };
+  }
 
   return (
     <div>
-      {/* <Box
-        sx={{
-          backgroundColor: "#fff",
-          borderColor: "lightgray",
-          borderWidth: 1,
-          borderBottom: "none",
-        }}
-        className="p-5"
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-        }}
-      /> */}
       <ConfigProvider
         theme={{
           components: {
@@ -276,26 +450,61 @@ export default function Ledger() {
               borderColor: "lightgray",
               borderRadius: 0,
               headerBorderRadius: 0,
+              // Adding blue background to table header as per user's request
+              headerBg: "#5858efff", // Using the blue from the QR code border
+              headerColor: "#fff", // Ensure text is visible on blue background
             },
           },
         }}
       >
         <Table
-          className="custom-table"
           bordered
           showHeader={false}
           size="small"
-          columns={columns}
+          columns={mainColumns}
           expandable={{
-            expandedRowRender,
+            expandedRowRender: () => (
+              <Table
+                style={{ margin: "5px 0" }}
+                size="small"
+                components={{ header: { cell: ResizableTitle } }}
+                columns={expandedColumns}
+                dataSource={tableData}
+                pagination={false}
+                rowHoverable
+                scroll={{ x: "max-content" }}
+                footer={() => (
+                  <div
+                    style={{
+                      textAlign: "right",
+                      fontWeight: "bold",
+                      fontSize: "15px",
+                    }}
+                  >
+                    NET STATEMENT BALANCE:{" "}
+                    {tableData.length > 0
+                      ? Number.parseFloat(
+                          tableData[tableData.length - 1].balance || 0
+                        ).toLocaleString()
+                      : "N/A"}
+                    &nbsp;UGX
+                  </div>
+                )}
+              />
+            ),
             defaultExpandAllRows: true,
           }}
-          dataSource={data}
-          scroll={{
-            y: "calc(100vh - 190px)",
-          }}
+          dataSource={dataSource}
+          scroll={{ y: "calc(100vh - 190px)" }}
         />
       </ConfigProvider>
+      <div style={{ display: "none" }}>
+        <PrintLedger
+          tableData={tableData}
+          studentFile={studentFile}
+          ref={printRef}
+        />
+      </div>
     </div>
   );
 }

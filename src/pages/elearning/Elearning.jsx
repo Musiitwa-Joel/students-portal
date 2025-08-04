@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Spin } from "antd";
+import { Helmet } from "react-helmet";
 
 function News() {
   const [loading, setLoading] = useState(true);
@@ -10,6 +11,19 @@ function News() {
 
   return (
     <div className="news-container" style={{ position: "relative" }}>
+      <Helmet>
+        <title>E-Learning - Nkumba University</title>
+        <meta
+          name="description"
+          content="Stay updated with the latest news and access e-learning resources at Nkumba University."
+        />
+        <meta
+          name="keywords"
+          content="news, e-learning, Nkumba University, university updates, online learning"
+        />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Nkumba University" />
+      </Helmet>
       {loading && (
         <div
           style={{
